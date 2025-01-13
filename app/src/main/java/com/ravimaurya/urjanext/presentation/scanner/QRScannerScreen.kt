@@ -18,24 +18,16 @@ import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 fun ScannerScreen(navController: NavController) {
 
 
-    Scaffold(
-        topBar = {
-            NavBackTopAppBar("Scanner") {
-                navController.navigate(NavRoutes.Main_SCREEN2){
-                    popUpTo(NavRoutes.SCANQR_SCREEN){ inclusive = true }
-                }
-            }
-        }
-    ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Scan QR")
         }
-    }
+
 
 }

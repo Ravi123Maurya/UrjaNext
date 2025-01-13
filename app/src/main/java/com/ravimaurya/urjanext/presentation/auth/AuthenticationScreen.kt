@@ -38,6 +38,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ravimaurya.urjanext.R
 import com.ravimaurya.urjanext.domain.model.UserModel
+import com.ravimaurya.urjanext.presentation.components.CircularProgressDialog
+import com.ravimaurya.urjanext.presentation.components.ScreenLaunchAnimation
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 import com.ravimaurya.urjanext.theme.Green40
 import kotlinx.coroutines.launch
@@ -60,6 +62,12 @@ fun AuthenticationScreen(
     val authState = authenticationViewModel.userAuthState.collectAsStateWithLifecycle()
     var isLoading by remember { mutableStateOf(false) }
 
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
     LaunchedEffect(authState.value) {
         when(val state = authState.value){
             is UserAuthenticationState.Error -> {
@@ -71,9 +79,11 @@ fun AuthenticationScreen(
                 println("AuthState: Loading...")
             }
             is UserAuthenticationState.Success -> {
-                navController.navigate(NavRoutes.Main_SCREEN){
+                navController.navigate(NavRoutes.HOME_NAV_GRAPH){
                     popUpTo(NavRoutes.AUTHENTICATION_SCREEN){ inclusive = true }
                 }
+                isLoading = false
+                Toast.makeText(context, "Authentication Successful!", Toast.LENGTH_SHORT).show()
             }
             null -> {
                 isLoading = false
@@ -81,14 +91,19 @@ fun AuthenticationScreen(
         }
     }
 
-    AuthenticationContent(
-        onRegisterClick = { userName, region, number, email, password ->
-            authenticationViewModel.onEvent(AuthenticationEvents.Register(UserModel(email = email, userPassword = password)))
-        },
-        onLoginClick = { email, password ->
-            authenticationViewModel.onEvent(AuthenticationEvents.Login(UserModel(email = email, userPassword = password)))
-        }
-    )
+    CircularProgressDialog(isLoading)
+
+    ScreenLaunchAnimation(isVisible) {
+        AuthenticationContent(
+            onRegisterClick = { userName, region, number, email, password ->
+                authenticationViewModel.onEvent(AuthenticationEvents.Register(UserModel(email = email, userPassword = password)))
+            },
+            onLoginClick = { email, password ->
+                authenticationViewModel.onEvent(AuthenticationEvents.Login(UserModel(email = email, userPassword = password)))
+            }
+        )
+    }
+
 
 }
 

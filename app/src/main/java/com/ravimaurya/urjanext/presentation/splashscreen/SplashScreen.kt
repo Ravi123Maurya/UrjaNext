@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -31,34 +32,37 @@ import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController, authenticationViewModel: AuthenticationViewModel = hiltViewModel()){
-
+fun SplashScreen(
+    navController: NavController,
+    authenticationViewModel: AuthenticationViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
-
     val auth = FirebaseAuth.getInstance()
-    val checkUserExist = authenticationViewModel.checkUserExistState.collectAsStateWithLifecycle()
+    // val checkUserExist = authenticationViewModel.checkUserExistState.collectAsStateWithLifecycle() // You're not using this state here
 
     LaunchedEffect(Unit) {
         delay(800)
         try {
-            if (auth.currentUser != null){
-                navController.navigate(NavRoutes.Main_SCREEN){
-                    popUpTo(NavRoutes.SPLASH_SCREEN){ inclusive = true }
+            if (auth.currentUser != null) {
+                navController.navigate(NavRoutes.HOME_NAV_GRAPH) {
+                    popUpTo(NavRoutes.SPLASH_SCREEN) { inclusive = true }
+                }
+            } else {
+                navController.navigate(NavRoutes.WELCOME_SCREEN) {
+                    popUpTo(NavRoutes.SPLASH_SCREEN) { inclusive = true }
                 }
             }
-            else{
-                navController.navigate(NavRoutes.WELCOME_SCREEN){
-                    popUpTo(NavRoutes.SPLASH_SCREEN){ inclusive = true }
-                }
-            }
-        }catch (e: Exception){
-            Toast.makeText(context, "Something went wrong! Check your internet connection!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(
+                context,
+                "Something went wrong! Check your internet connection!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
-
     }
 
     // Create an infinite transition
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition("splash_logo_rotation_animation")
 
     // Define an animated value for rotation
     val rotation by infiniteTransition.animateFloat(
@@ -71,22 +75,17 @@ fun SplashScreen(navController: NavController, authenticationViewModel: Authenti
         )
     )
 
-
-
     Box(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
-    ){
-
-           Image(
-               modifier = Modifier
-                   .size(80.dp)
-                   .graphicsLayer(rotationZ = rotation),
-               painter = painterResource(R.drawable.logo),
-               contentDescription = "logo"
-           )
-
-
+    ) {
+        Image(
+            modifier = Modifier
+                .size(80.dp)
+                .rotate(210f)
+                .graphicsLayer(rotationZ = rotation),
+            painter = painterResource(R.drawable.logo2),
+            contentDescription = "logo"
+        )
     }
 }

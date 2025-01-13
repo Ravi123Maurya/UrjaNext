@@ -19,6 +19,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,12 +38,29 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.ravimaurya.urjanext.R
 import com.ravimaurya.urjanext.presentation.components.BigButton
+import com.ravimaurya.urjanext.presentation.components.ScreenLaunchAnimation
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 import com.ravimaurya.urjanext.theme.Green40
+import kotlinx.coroutines.delay
 
 @Composable
 fun WelcomeScreen(navController: NavController){
 
+    var isVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(50)
+        isVisible = true
+    }
+
+    ScreenLaunchAnimation(isVisible) {
+        WelcomeScreenContent(navController)
+    }
+   
+}
+
+@Composable
+fun WelcomeScreenContent(navController: NavController){
     val linearGradientBG = listOf(
         Color(4, 197, 58),
         Color(209, 255, 77),
@@ -69,7 +91,7 @@ fun WelcomeScreen(navController: NavController){
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    ,
+                ,
             ){
                 Image(
                     modifier = Modifier.fillMaxWidth(),
@@ -104,9 +126,9 @@ fun WelcomeScreen(navController: NavController){
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )
-             Text(
+            Text(
                 text = stringResource(R.string.lorem_ipsum),
-                 color = Color.Gray,
+                color = Color.Gray,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center
             )
@@ -139,9 +161,9 @@ fun WelcomeScreen(navController: NavController){
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                        text = stringResource(R.string.learn_more),
+                    text = stringResource(R.string.learn_more),
                     style = MaterialTheme.typography.bodyMedium,
-                        color = Green40
+                    color = Green40
                 )
                 Icon(
                     modifier = Modifier.size(18.dp),

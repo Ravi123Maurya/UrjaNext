@@ -1,6 +1,8 @@
 package com.ravimaurya.urjanext.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
@@ -9,7 +11,7 @@ import com.ravimaurya.urjanext.presentation.home.HomeScreen
 import com.ravimaurya.urjanext.presentation.welcome.WelcomeScreen
 import com.ravimaurya.urjanext.presentation.auth.AuthenticationScreen
 import com.ravimaurya.urjanext.presentation.history.HistoryScreen
-import com.ravimaurya.urjanext.presentation.mainscreens.MainScreensScaffold
+import com.ravimaurya.urjanext.presentation.mainscreens.MainScreens
 import com.ravimaurya.urjanext.presentation.profile.ProfileScreen
 import com.ravimaurya.urjanext.presentation.scanner.ScannerScreen
 import com.ravimaurya.urjanext.presentation.splashscreen.SplashScreen
@@ -20,53 +22,59 @@ object NavRoutes {
     const val SPLASH_SCREEN = "splash_screen"
     const val WELCOME_SCREEN = "welcome"
     const val AUTHENTICATION_SCREEN = "authentication"
-    const val Main_SCREEN = "main"
-    const val Main_SCREEN2 = "main2"
+
     const val HOME_SCREEN = "home"
     const val STATION_SCREEN = "station"
     const val SCANQR_SCREEN = "scanqr"
     const val HISTORY_SCREEN = "history"
     const val PROFILE_SCREEN = "profile"
+
+    const val HOME_NAV_GRAPH = "homeNavGraph"
 }
-
-
-
 @Composable
-fun MainNavGraph(){
+fun MainNavGraph() {
 
-    val navController = rememberNavController()
+    val authNavController = rememberNavController()
 
     NavHost(
-        navController = navController,
+        navController = authNavController,
         startDestination = NavRoutes.SPLASH_SCREEN
     ) {
         // Splash
-         composable(NavRoutes.SPLASH_SCREEN) { SplashScreen(navController) }
+        composable(NavRoutes.SPLASH_SCREEN) { SplashScreen(authNavController) }
         // Welcome
-         composable(NavRoutes.WELCOME_SCREEN) { WelcomeScreen(navController) }
+        composable(NavRoutes.WELCOME_SCREEN) { WelcomeScreen(authNavController) }
         // Authentication
-         composable(NavRoutes.AUTHENTICATION_SCREEN) { AuthenticationScreen(navController) }
+        composable(NavRoutes.AUTHENTICATION_SCREEN) { AuthenticationScreen(authNavController) }
 
-        // Home
-        composable(NavRoutes.HOME_SCREEN) { HomeScreen(navController) }
-        // Station
-        composable(NavRoutes.STATION_SCREEN) { StationScreen(navController) }
-        // Scanner
-        composable(NavRoutes.SCANQR_SCREEN) { ScannerScreen(navController) }
-        // History
-        composable(NavRoutes.HISTORY_SCREEN) { HistoryScreen(navController) }
-        // Profile
-        composable(NavRoutes.PROFILE_SCREEN){ ProfileScreen(navController) }
-
-        navigation(
-            startDestination = NavRoutes.Main_SCREEN2,
-            route = NavRoutes.Main_SCREEN
-        ){
-            // MainScreens
-            composable(NavRoutes.Main_SCREEN2){ MainScreensScaffold(navController) }
-
-        }
-
-
+        // Home Nav Graph (Wrapper for Main Screens with Bottom Navigation Bar)
+         composable(NavRoutes.HOME_NAV_GRAPH) { MainScreens(authNavController) }
     }
+}
+
+@Composable
+fun HomeScreensGraph(navController: NavHostController, authNavController: NavController){
+
+    NavHost(
+        navController = navController,
+        startDestination = NavRoutes.HOME_SCREEN,
+    ){
+
+        composable(NavRoutes.HOME_SCREEN) {
+            HomeScreen(navController)
+        }
+        composable(NavRoutes.STATION_SCREEN) {
+            StationScreen(navController)
+        }
+        composable(NavRoutes.SCANQR_SCREEN) {
+            ScannerScreen(navController)
+        }
+        composable(NavRoutes.HISTORY_SCREEN) {
+            HistoryScreen(navController)
+        }
+        composable(NavRoutes.PROFILE_SCREEN) {
+            ProfileScreen(navController, authNavController)
+        }
+    }
+
 }

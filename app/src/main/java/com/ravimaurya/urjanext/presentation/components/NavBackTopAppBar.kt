@@ -6,10 +6,14 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -18,7 +22,20 @@ fun NavBackTopAppBar(
     title: String,
     onBackClick: () -> Unit
 ){
+
+    val strokeColor = MaterialTheme.colorScheme.primary
+
     TopAppBar(
+        modifier = Modifier
+            .drawBehind {
+
+                drawLine(
+                    color = strokeColor,
+                    start = Offset(0f, size.height), // Start at top-left corner
+                    end = Offset(size.width, size.height), // End at top-right corner
+                    strokeWidth = 6f
+                )
+            },
         title = { Text(title) },
         navigationIcon = {
             IconButton(

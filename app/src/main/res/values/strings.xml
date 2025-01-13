@@ -41,8 +41,8 @@
     <string name="have_an_account_login">Have an account? Login</string>
 
     <!-- Onboarding Screen -->
-    <string name="track_charging">Track your charging process in real time</string>
-    <string name="lorem_ipsum">Lorem ipsum dolor sit amet consectetur. Viverra erat libero cursus dui</string>
+    <string name="track_charging">Ready to charge? Let\'s Stay Connected!</string>
+    <string name="lorem_ipsum">Track every of your EV charging journey and pay effortlessly.</string>
 
     <!-- App Name -->
     <string name="app_name">UrjaNext</string>

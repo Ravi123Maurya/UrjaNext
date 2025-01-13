@@ -6,7 +6,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
@@ -19,25 +24,22 @@ import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 fun StationScreen(navController: NavController) {
 
 
-    Scaffold(
-        topBar = {
-            NavBackTopAppBar("Station") {
-                navController.navigate(NavRoutes.Main_SCREEN2){
-                    popUpTo(NavRoutes.STATION_SCREEN){ inclusive = true }
-                }
-            }
-        }
-    ) { innerPadding ->
+var he by remember { mutableStateOf("") }
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Station")
+            TextField(
+                value = he,
+                onValueChange = {
+                   he = it
+                }
+            )
         }
-    }
+
 
 
 

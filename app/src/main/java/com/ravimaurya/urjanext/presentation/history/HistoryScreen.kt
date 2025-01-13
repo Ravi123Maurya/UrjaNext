@@ -17,23 +17,14 @@ import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 fun HistoryScreen(navController: NavController) {
 
 
-    Scaffold(
-        topBar = {
-            NavBackTopAppBar("History") {
-                navController.navigate(NavRoutes.Main_SCREEN2){
-                    popUpTo(NavRoutes.HISTORY_SCREEN){ inclusive = true }
-                }
-            }
-        }
-    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("History")
         }
-    }
+
 }

@@ -1,5 +1,6 @@
 package com.ravimaurya.urjanext.presentation.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,9 @@ import com.ravimaurya.urjanext.presentation.components.BigButton
 
 @Composable
 fun RegistrationContent(onRegisterClick: (String, String, String, String, String) -> Unit){
+
+
+    val context = LocalContext.current
 
     var expanded by remember { mutableStateOf(false) }
     val list = listOf("Maharashtra", "Uttar Pradesh", "Delhi")
@@ -169,6 +174,7 @@ fun RegistrationContent(onRegisterClick: (String, String, String, String, String
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = "Enter email") },
                 value = email,
+                placeholder = { Text("example@gmail.com") },
                 onValueChange = {
                     email = it
                 },
@@ -213,7 +219,19 @@ fun RegistrationContent(onRegisterClick: (String, String, String, String, String
             label = R.string.continue_,
             enabled = true,
             onClick = {
-                onRegisterClick(userName, selectedItem, phoneNumber, email, password)
+                if(userName.isEmpty() || selectedItem == "Select State" || email.isEmpty() || password.isEmpty()){
+                    Toast.makeText(context, "All field are required!", Toast.LENGTH_SHORT).show()
+                }
+                else if(!email.endsWith("@gmail.com")){
+                    Toast.makeText(context, "Enter valid email!", Toast.LENGTH_SHORT).show()
+                }
+                else if(password.length < 6){
+                    Toast.makeText(context, "Password should contain least 6 characters!", Toast.LENGTH_SHORT).show()
+                }
+                else{
+                    Toast.makeText(context, "Signing Up...", Toast.LENGTH_SHORT).show()
+                    onRegisterClick(userName, selectedItem, phoneNumber, email, password)
+                }
             }
         )
     }

@@ -16,6 +16,7 @@ fun CPPreview(modifier: Modifier = Modifier) {
 fun CircularProgressDialog(
     isLoading: Boolean
 ) {
+    if (isLoading)
     Dialog(
         onDismissRequest = {
 

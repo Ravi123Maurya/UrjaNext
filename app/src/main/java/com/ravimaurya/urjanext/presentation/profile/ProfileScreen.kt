@@ -21,24 +21,32 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ravimaurya.urjanext.presentation.auth.AuthenticationViewModel
 import com.ravimaurya.urjanext.presentation.components.AlertDialogUrja
+import com.ravimaurya.urjanext.presentation.components.CircularProgressDialog
 import com.ravimaurya.urjanext.presentation.components.NavBackTopAppBar
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 
 
 @Composable
-fun ProfileScreen(navController: NavController, authenticationViewModel: AuthenticationViewModel = hiltViewModel()) {
+fun ProfileScreen(homeNavController: NavController, authNavController: NavController, authenticationViewModel: AuthenticationViewModel = hiltViewModel()) {
 
     var isLogoutClicked by remember{
         mutableStateOf(false)
     }
+
+    var isLoading by remember {
+        mutableStateOf(false)
+    }
+
+    CircularProgressDialog(isLoading)
 
     if (isLogoutClicked){
         AlertDialogUrja(
             title = "Logout",
             text = "Are you sure? Want to logout?",
             onConfirmClick = {
+                isLoading = true
                 authenticationViewModel.logout()
-                navController.navigate(NavRoutes.AUTHENTICATION_SCREEN){
+                authNavController.navigate(NavRoutes.WELCOME_SCREEN){
                     popUpTo(0){
                         inclusive = true
                     }
@@ -48,19 +56,11 @@ fun ProfileScreen(navController: NavController, authenticationViewModel: Authent
         )
     }
 
-    Scaffold(
-        topBar = {
-            NavBackTopAppBar("Profile") {
-                navController.navigate(NavRoutes.Main_SCREEN2){
-                    popUpTo(NavRoutes.PROFILE_SCREEN){ inclusive = true }
-                }
-            }
-        }
-    ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -75,6 +75,6 @@ fun ProfileScreen(navController: NavController, authenticationViewModel: Authent
                 Text("Logout")
             }
         }
-    }
+
 
 }

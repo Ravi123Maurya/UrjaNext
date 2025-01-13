@@ -1,13 +1,12 @@
-package com.ravimaurya.urjanext.presentation.components
-
-import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.RoundedCornerShape
+// ... other imports ...
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.EvStation
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,31 +17,66 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 
+object ConstantItems {
+    val BottomNavItems = listOf(
+        BottomNavItem(
+            label = "Home",
+            icon = Icons.Filled.Home,
+            route = NavRoutes.HOME_SCREEN
+        ),
+        BottomNavItem(
+            label = "Station",
+            icon = Icons.Filled.Settings,
+            route = NavRoutes.STATION_SCREEN
+        ),
+        BottomNavItem(
+            label = "Scanner",
+            icon = Icons.Filled.QrCodeScanner,
+            route = NavRoutes.SCANQR_SCREEN
+        ),
+        BottomNavItem(
+            label = "History",
+            icon = Icons.Filled.List,
+            route = NavRoutes.HISTORY_SCREEN
+        ),
+        BottomNavItem(
+            label = "Profile",
+            icon = Icons.Filled.Person,
+            route = NavRoutes.PROFILE_SCREEN
+        )
+    )
+}
 
+data class BottomNavItem(
+    val label: String,
+    val icon: ImageVector,
+    val route: String,
+)
 @Composable
-fun BottomUrjaBar(navController: NavController){
-
+fun BottomUrjaBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
-    val currentRoute = navController.currentDestination?.route
+    val bottomBarStrokeColor = MaterialTheme.colorScheme.primary
 
     BottomAppBar(
         modifier = Modifier
             .drawBehind {
-                val strokeWidth = 6f // Thickness of the border
-                val color = Color.Green // Color of the border
                 drawLine(
-                    color = color,
-                    start = Offset(0f, 0f), // Start at top-left corner
-                    end = Offset(size.width, 0f), // End at top-right corner
-                    strokeWidth = strokeWidth
+                    color = bottomBarStrokeColor,
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 6f,
+                    cap = StrokeCap.Round
                 )
             }
     ) {
@@ -50,53 +84,23 @@ fun BottomUrjaBar(navController: NavController){
             NavigationBarItem(
                 label = { Text(bottomItem.label) },
                 selected = currentRoute == bottomItem.route,
-                icon = { Icon(bottomItem.icon, "") },
+                icon = { Icon(bottomItem.icon, contentDescription = null) },
                 onClick = {
-                    if (bottomItem.route != NavRoutes.HOME_SCREEN) {
+
                         navController.navigate(bottomItem.route) {
-                            popUpTo(bottomItem.route) { inclusive = true }
+                            popUpTo(navController.graph.findStartDestination().id){
+                                saveState = true
+                            }
+                            // Restore the state of the selected item
+                            restoreState = true
+                            // Avoid multiple copies of the same destination when re-selecting the same item
+                            launchSingleTop = true
+
                         }
-                    }
+
                 },
                 alwaysShowLabel = true
             )
         }
     }
-
-}
-
-data class BottomNavItem(
-    val label: String,
-    val route: String,
-    val icon: ImageVector,
-)
-
-object ConstantItems{
-    val BottomNavItems = listOf(
-        BottomNavItem(
-            label = "Home",
-            route = NavRoutes.HOME_SCREEN,
-            icon = Icons.Filled.Home
-        ),
-        BottomNavItem(
-            label = "Station",
-            route = NavRoutes.STATION_SCREEN,
-            icon = Icons.Filled.EvStation
-        ),
-        BottomNavItem(
-            label = "Scan",
-            route = NavRoutes.SCANQR_SCREEN,
-            icon = Icons.Filled.QrCodeScanner
-        ),
-        BottomNavItem(
-            label = "History",
-            route = NavRoutes.HISTORY_SCREEN,
-            icon = Icons.Filled.DeleteOutline
-        ),
-        BottomNavItem(
-            label = "Profile",
-            route = NavRoutes.PROFILE_SCREEN,
-            icon = Icons.Filled.Person
-        )
-    )
 }
