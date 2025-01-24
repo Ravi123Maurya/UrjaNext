@@ -5,6 +5,7 @@ plugins {
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
+    id ("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -57,27 +58,49 @@ dependencies {
 
     // navigation
     implementation("androidx.navigation:navigation-compose:2.8.1")
+
     // viewmodel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+
     // Coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+
     // Material Icons
     implementation("androidx.compose.material:material-icons-extended-android:1.7.2")
+
     // Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+
     // Firebase Bom
-    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
     // Firebase Authentication
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
     implementation("com.google.firebase:firebase-auth")
+
     // Hilt Navigation
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation("androidx.hilt:hilt-navigation:1.2.0")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
+
     // Datastore
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
+    // Google Maps Compose library
+    // Google Maps Compose utility library
+    //Google Services & Maps
+    val mapsComposeVersion = "4.3.3"
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.maps.android:maps-compose:$mapsComposeVersion")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.maps.android:maps-compose-utils:$mapsComposeVersion")
+    implementation("com.google.maps:google-maps-services:2.2.0")
+
+    //Accompanist (Permission)
+    implementation("com.google.accompanist:accompanist-permissions:0.33.1-alpha")
+
+    // FireStore
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
 
 
@@ -97,19 +120,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // CameraX core library using the camera2 implementation
-    val camerax_version = "1.4.0-alpha02"
-    // The following line is optional, as the core library is included indirectly by camera-camera2
-    implementation("androidx.camera:camera-core:${camerax_version}")
-    implementation("androidx.camera:camera-camera2:${camerax_version}")
-    // If you want to additionally use the CameraX Lifecycle library
-    implementation("androidx.camera:camera-lifecycle:${camerax_version}")
-    // If you want to additionally use the CameraX VideoCapture library
-    implementation("androidx.camera:camera-video:${camerax_version}")
-    // If you want to additionally use the CameraX View class
-    implementation("androidx.camera:camera-view:${camerax_version}")
-    // If you want to additionally add CameraX ML Kit Vision Integration
-    implementation("androidx.camera:camera-mlkit-vision:${camerax_version}")
-    // If you want to additionally use the CameraX Extensions library
-    implementation("androidx.camera:camera-extensions:${camerax_version}")
+    val camerax_version = "1.3.0-alpha04"
+    implementation("androidx.camera:camera-core:$camerax_version")
+    implementation("androidx.camera:camera-camera2:$camerax_version")
+    implementation("androidx.camera:camera-lifecycle:$camerax_version")
+    implementation("androidx.camera:camera-view:$camerax_version")
 }
