@@ -1,4 +1,5 @@
 // ... other imports ...
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -8,8 +9,10 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 
 import androidx.navigation.NavHostController
@@ -65,20 +69,20 @@ data class BottomNavItem(
 fun BottomUrjaBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
     val bottomBarStrokeColor = MaterialTheme.colorScheme.primary
 
     BottomAppBar(
         modifier = Modifier
-            .drawBehind {
-                drawLine(
-                    color = bottomBarStrokeColor,
-                    start = Offset(0f, 0f),
-                    end = Offset(size.width, 0f),
-                    strokeWidth = 6f,
-                    cap = StrokeCap.Round
-                )
-            }
+            .heightIn(60.dp)
+//            .drawBehind {
+//                drawLine(
+//                    color = bottomBarStrokeColor,
+//                    start = Offset(0f, 0f),
+//                    end = Offset(size.width, 0f),
+//                    strokeWidth = 6f,
+//                    cap = StrokeCap.Round
+//                )
+//            },
     ) {
         ConstantItems.BottomNavItems.forEach { bottomItem ->
             NavigationBarItem(

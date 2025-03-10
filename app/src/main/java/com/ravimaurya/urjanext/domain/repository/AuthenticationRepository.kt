@@ -14,4 +14,8 @@ interface AuthenticationRepository {
 
     suspend fun deleteAccount() : Flow<Resource<String>>
 
+    suspend fun createUser(userModel: UserModel) : Flow<Resource<Boolean>>
+
+    suspend fun getUser(userId: String) : Flow<Resource<UserModel?>>
+
 }

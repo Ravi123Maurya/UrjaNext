@@ -1,26 +1,23 @@
 package com.ravimaurya.urjanext.presentation.scanner
 
 import android.Manifest
-import android.content.ContentValues
-import android.content.Context
-import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
+
+import android.util.Log
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,15 +34,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
-import com.ravimaurya.urjanext.presentation.components.NavBackTopAppBar
-import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.common.util.concurrent.ListenableFuture
 
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ScannerScreen(navController: NavController) {
 
@@ -58,8 +54,86 @@ fun ScannerScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Scan QR")
+            Spacer(modifier = Modifier.height(10.dp))
+
+            val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
+
+            Button(
+                onClick = {
+                    cameraPermissionState.launchPermissionRequest()
+                }
+            ) {
+                Text(text = "Camera Permission")
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            CameraPreview()
         }
 
 
+}
+
+
+@Composable
+fun CameraPreview() {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var preview by remember { mutableStateOf<Preview?>(null) }
+    val barCodeVal = remember { mutableStateOf("") }
+
+    AndroidView(
+        factory = { AndroidViewContext ->
+            PreviewView(AndroidViewContext).apply {
+                this.scaleType = PreviewView.ScaleType.FILL_CENTER
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                )
+                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+            }
+        },
+        modifier = Modifier.fillMaxSize().padding(50.dp),
+        update = { previewView ->
+            val cameraSelector: CameraSelector = CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .build()
+            val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+            val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
+                ProcessCameraProvider.getInstance(context)
+
+            cameraProviderFuture.addListener({
+                preview = Preview.Builder().build().also {
+                    it.setSurfaceProvider(previewView.surfaceProvider)
+                }
+                val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+                val barcodeAnalyser = BarCodeAnalyser { barcodes ->
+                    barcodes.forEach { barcode ->
+                        barcode.rawValue?.let { barcodeValue ->
+                            barCodeVal.value = barcodeValue
+                            Toast.makeText(context, barcodeValue, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                val imageAnalysis: ImageAnalysis = ImageAnalysis.Builder()
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .build()
+                    .also {
+                        it.setAnalyzer(cameraExecutor, barcodeAnalyser)
+                    }
+
+                try {
+                    cameraProvider.unbindAll()
+                    cameraProvider.bindToLifecycle(
+                        lifecycleOwner,
+                        cameraSelector,
+                        preview,
+                        imageAnalysis
+                    )
+                } catch (e: Exception) {
+                    Log.d("TAG", "CameraPreview: ${e.localizedMessage}")
+                }
+            }, ContextCompat.getMainExecutor(context))
+        }
+    )
 }

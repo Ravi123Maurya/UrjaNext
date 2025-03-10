@@ -70,6 +70,7 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.ravimaurya.urjanext.R
 import com.ravimaurya.urjanext.presentation.components.AlertDialogUrja
+import com.ravimaurya.urjanext.presentation.components.CircularProgressBar
 import com.ravimaurya.urjanext.presentation.components.CircularProgressDialog
 import com.ravimaurya.urjanext.presentation.home.urjalocation.PermissionEvent
 import com.ravimaurya.urjanext.presentation.home.urjalocation.UrjaLocationViewModel
@@ -80,7 +81,11 @@ import kotlin.time.Duration.Companion.hours
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun HomeScreen(navController: NavController, urjaLocationViewModel: UrjaLocationViewModel = hiltViewModel()){
+fun HomeScreen(
+    navController: NavController,
+    urjaLocationViewModel: UrjaLocationViewModel = hiltViewModel(),
+    isFabClicked: Boolean,
+) {
 
     val context = LocalContext.current
 
@@ -98,8 +103,8 @@ fun HomeScreen(navController: NavController, urjaLocationViewModel: UrjaLocation
     }
 
 
-    when{
-        permissionState.allPermissionsGranted ->{
+    when {
+        permissionState.allPermissionsGranted -> {
             LaunchedEffect(Unit) {
                 urjaLocationViewModel.handle(PermissionEvent.Granted)
             }
@@ -119,83 +124,92 @@ fun HomeScreen(navController: NavController, urjaLocationViewModel: UrjaLocation
         }
     }
 
-    with(viewState){
-        when(this){
-            ViewState.Loading -> {
-                CircularProgressDialog(true)
-            }
-            ViewState.RevokedPermissions -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("We need permissions to use this app")
-                    Button(
-                        onClick = {
+    if (isFabClicked) {
+        with(viewState) {
+            when (this) {
+                ViewState.Loading -> {
+                    CircularProgressBar(true)
+                }
 
-                            startActivity(context, Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), null)
-                        },
-                        enabled = !context.hasLocationPermission()
+                ViewState.RevokedPermissions -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        if (context.hasLocationPermission()) CircularProgressIndicator(
-                            modifier = Modifier.size(14.dp),
-                            color = Color.White
-                        )
-                        else Text("Settings")
+                        Text("We need permissions to use this app")
+                        Button(
+                            onClick = {
+
+                                startActivity(
+                                    context,
+                                    Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS),
+                                    null
+                                )
+                            },
+                            enabled = !context.hasLocationPermission()
+                        ) {
+                            if (context.hasLocationPermission()) CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                color = Color.White
+                            )
+                            else Text("Settings")
+                        }
                     }
                 }
-            }
-            is ViewState.Success -> {
-                val currentLoc =
-                    LatLng(
-                        location?.latitude ?: 0.0,
-                        location?.longitude ?: 0.0
+
+                is ViewState.Success -> {
+                    val currentLoc =
+                        LatLng(
+                            location?.latitude ?: 0.0,
+                            location?.longitude ?: 0.0
+                        )
+                    val cameraState = rememberCameraPositionState()
+
+                    LaunchedEffect(key1 = currentLoc) {
+                        cameraState.centerOnLocation(currentLoc)
+                    }
+
+
+                    UrjaMap(
+                        currentPosition = LatLng(
+                            currentLoc.latitude,
+                            currentLoc.longitude
+                        ),
+                        cameraState = cameraState,
+                        urjaLocationViewModel
                     )
-                val cameraState = rememberCameraPositionState()
 
-                LaunchedEffect(key1 = currentLoc) {
-                    cameraState.centerOnLocation(currentLoc)
+
                 }
-
-                UrjaMap(
-                    currentPosition = LatLng(
-                        currentLoc.latitude,
-                        currentLoc.longitude
-                    ),
-                    cameraState = cameraState,
-                    urjaLocationViewModel
-                )
             }
         }
     }
-
-//        Box(
-//           modifier = Modifier.fillMaxSize(),
-//            contentAlignment = Alignment.Center
-//        ){
-//
-//        }
 
 
 }
 
 
 @Composable
-fun UrjaMap(currentPosition: LatLng, cameraState: CameraPositionState, urjaLocationViewModel: UrjaLocationViewModel){
+fun UrjaMap(
+    currentPosition: LatLng,
+    cameraState: CameraPositionState,
+    urjaLocationViewModel: UrjaLocationViewModel,
+) {
 
     val route by urjaLocationViewModel.route.collectAsStateWithLifecycle()
     val destination = LatLng(18.921983, 72.834656)// Example: Gateway of India
 
 
-
     val context = LocalContext.current
     val uiSettings by remember {
-        mutableStateOf(MapUiSettings(
-            zoomControlsEnabled = false,
-        ))
+        mutableStateOf(
+            MapUiSettings(
+                zoomControlsEnabled = false,
+            )
+        )
     }
     val marker = LatLng(currentPosition.latitude, currentPosition.longitude)
 
@@ -219,11 +233,11 @@ fun UrjaMap(currentPosition: LatLng, cameraState: CameraPositionState, urjaLocat
         ) // Example: User's current Location
     }
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         urjaLocationViewModel.getRoute(
             origin = currentPosition,
             destination = destination,
-            apiKey =  "AIzaSyAdKSH2ltnWhZgpLYXV41VmQ1wH20crGLc"
+            apiKey = "AIzaSyAdKSH2ltnWhZgpLYXV41VmQ1wH20crGLc"
         )
     }
 
@@ -238,16 +252,16 @@ fun UrjaMap(currentPosition: LatLng, cameraState: CameraPositionState, urjaLocat
         uiSettings = uiSettings,
         onMapLongClick = {
             onMapClickMarker = LatLng(it.latitude, it.longitude)
-            if(isOnMapClickMarkerVisible) isOnMapClickMarkerVisible2 = true
+            if (isOnMapClickMarkerVisible) isOnMapClickMarkerVisible2 = true
             isOnMapClickMarkerVisible = true
         }
     ) {
 
-            Marker(
-                state = MarkerState(position = currentPosition),
-                title = "Current Location",
-                snippet = "You are here"
-            )
+        Marker(
+            state = MarkerState(position = currentPosition),
+            title = "Current Location",
+            snippet = "You are here"
+        )
 
         Marker(
             state = MarkerState(destination),
@@ -255,7 +269,7 @@ fun UrjaMap(currentPosition: LatLng, cameraState: CameraPositionState, urjaLocat
         )
 
 
-        if(route != null){
+        if (route != null) {
             val polyline = route!!.routes[0].overviewPolyline.decodePath()
             val polylinePoints = polyline.map { LatLng(it.lat, it.lng) }
 
@@ -266,7 +280,6 @@ fun UrjaMap(currentPosition: LatLng, cameraState: CameraPositionState, urjaLocat
 //                visible = isOnMapClickMarkerVisible
             )
         }
-
 
 
     }
@@ -308,7 +321,7 @@ fun RationaleAlert(onDismiss: () -> Unit, onConfirm: () -> Unit) {
 
 
 private suspend fun CameraPositionState.centerOnLocation(
-    location: LatLng
+    location: LatLng,
 ) = animate(
     update = CameraUpdateFactory.newLatLngZoom(
         location,

@@ -53,15 +53,15 @@ fun MainNavGraph() {
 }
 
 @Composable
-fun HomeScreensGraph(navController: NavHostController, authNavController: NavController){
+fun HomeScreensGraph(navController: NavHostController, authNavController: NavController, isFabClicked: Boolean){
 
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.HOME_SCREEN,
+        startDestination = NavRoutes.HISTORY_SCREEN,
     ){
 
         composable(NavRoutes.HOME_SCREEN) {
-            HomeScreen(navController)
+            HomeScreen(navController, isFabClicked = isFabClicked)
         }
         composable(NavRoutes.STATION_SCREEN) {
             StationScreen(navController)

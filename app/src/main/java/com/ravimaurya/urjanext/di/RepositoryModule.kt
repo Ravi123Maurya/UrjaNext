@@ -3,8 +3,11 @@ package com.ravimaurya.urjanext.di
 import android.content.Context
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ravimaurya.urjanext.data.repository_impl.AuthRepositoryImpl
+import com.ravimaurya.urjanext.data.repository_impl.ProfileRepositoryImpl
 import com.ravimaurya.urjanext.domain.repository.AuthenticationRepository
+import com.ravimaurya.urjanext.domain.repository.ProfileRepository
 import com.ravimaurya.urjanext.presentation.home.urjalocation.ILocationService
 import com.ravimaurya.urjanext.presentation.home.urjalocation.LocationService
 import com.ravimaurya.urjanext.util.UserDataPreferences
@@ -22,32 +25,44 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideDataStoreContext(context: Context): UserDataPreferences{
+    fun provideDataStoreContext(context: Context): UserDataPreferences {
         return UserDataPreferences(context)
     }
 
     @Provides
     @Singleton
-    fun provideFirebaseAuth(): FirebaseAuth{
+    fun provideFirebaseAuth(): FirebaseAuth {
         return FirebaseAuth.getInstance()
     }
 
     @Provides
     @Singleton
-    fun provideAuthenticationRepository(firebaseAuth: FirebaseAuth): AuthenticationRepository{
-        return AuthRepositoryImpl(firebaseAuth)
+    fun provideFirebaseFireStore(): FirebaseFirestore {
+        return FirebaseFirestore.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthenticationRepository(firebaseAuth: FirebaseAuth, firebaseFirestore: FirebaseFirestore): AuthenticationRepository {
+        return AuthRepositoryImpl(firebaseAuth, firebaseFirestore)
     }
 
 
+    @Singleton
+    @Provides
+    fun provideLocationClient(
+        @ApplicationContext context: Context,
+    ): ILocationService = LocationService(
+        context,
+        LocationServices.getFusedLocationProviderClient(context)
+    )
 
-        @Singleton
-        @Provides
-        fun provideLocationClient(
-            @ApplicationContext context: Context
-        ): ILocationService = LocationService(
-            context,
-            LocationServices.getFusedLocationProviderClient(context)
-        )
+    /*----------- FireStore --------*/
+    @Singleton
+    @Provides
+    fun provideProfileRepository(firestore: FirebaseFirestore): ProfileRepository {
+        return ProfileRepositoryImpl(firestore)
+    }
 
 
 }
