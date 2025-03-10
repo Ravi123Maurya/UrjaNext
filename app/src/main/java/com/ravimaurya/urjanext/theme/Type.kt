@@ -16,45 +16,45 @@ private val SanFranciscoPro = FontFamily(
 // Set of Material typography styles to start with
 val Typography = Typography(
     displayLarge = TextStyle(
-        fontFamily = SanFranciscoPro,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.W700,
         fontSize = 34.sp,
         lineHeight = 48.sp,
     ),
     displayMedium = TextStyle(
-        fontFamily = SanFranciscoPro,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.W700,
         fontSize = 24.sp,
         lineHeight = 36.sp,
     ),
     displaySmall = TextStyle(
-        fontFamily = SanFranciscoPro,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.W700,
         fontSize = 20.sp,
         lineHeight = 30.sp,
     ),
     headlineLarge = TextStyle(
-        fontFamily = SanFranciscoPro,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp,
         lineHeight = 24.sp
     ),
     bodyLarge = TextStyle(
-        fontFamily = SanFranciscoPro,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,// w700
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
     bodyMedium = TextStyle(
-        fontFamily = SanFranciscoPro,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 21.sp,
         letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = SanFranciscoPro,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
 

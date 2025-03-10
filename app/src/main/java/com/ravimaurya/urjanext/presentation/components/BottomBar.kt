@@ -3,6 +3,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EvStation
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
@@ -39,7 +40,7 @@ object ConstantItems {
         ),
         BottomNavItem(
             label = "Station",
-            icon = Icons.Filled.Settings,
+            icon = Icons.Filled.EvStation,
             route = NavRoutes.STATION_SCREEN
         ),
         BottomNavItem(
