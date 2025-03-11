@@ -1,6 +1,7 @@
 package com.ravimaurya.urjanext.presentation.history
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DockedSearchBar
@@ -33,6 +35,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -50,13 +53,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ravimaurya.urjanext.domain.model.dummyHistoryList
+import com.ravimaurya.urjanext.presentation.components.NavBackScaffold
+import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryScreen(navController: NavController) {
+fun HistoryScreen(navController: NavController, mainNavController: NavController) {
 
     var isDetailClicked by remember { mutableStateOf(false) }
     var isSortByClicked by remember { mutableStateOf(false) }
+
 
     Column(
         modifier = Modifier
@@ -77,7 +83,7 @@ fun HistoryScreen(navController: NavController) {
                         amountPaid = dummyHistoryList[index].amountPaid,
                         energyConsumed = dummyHistoryList[index].energyConsumed,
                         onHistoryDetailClick = {
-                            isDetailClicked = true
+                            mainNavController.navigate(NavRoutes.HISTORY_DETAIL_SCREEN)
                         }
                     )
                 }
@@ -113,7 +119,7 @@ fun HistoryDetails(
     date: String,
     amountPaid: Double,
     energyConsumed: Double,
-    onHistoryDetailClick: () -> Unit
+    onHistoryDetailClick: () -> Unit,
 ) {
 
     val iconColorList = listOf(
@@ -144,16 +150,36 @@ fun HistoryDetails(
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .background(iconColorList.random().copy(alpha = .5f)),
+                    .border(1.dp, Color.Gray, CircleShape)
+                    .background(
+                        iconColorList
+                            .random()
+                            .copy(alpha = .5f)
+                    ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "S", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                Text(text = "${stationName[0]}", fontSize = 25.sp)
             }
 
             // Station Name | Location | Date
             Column {
-                Text(text = if (stationName.length > 15) "${stationName.substring(0, 13)}..." else stationName, fontSize = 18.sp,  )
-                Text(text = if (location.length > 22) "${location.substring(0, 19)}..." else location, fontSize = 14.sp, color = Color.Gray)
+                Text(
+                    text = if (stationName.length > 15) "${
+                        stationName.substring(
+                            0,
+                            13
+                        )
+                    }..." else stationName,
+                    fontSize = 18.sp,
+                )
+                Text(
+                    text = if (location.length > 21) "${
+                        location.substring(
+                            0,
+                            17
+                        )
+                    }..." else location, fontSize = 14.sp, color = Color.Gray
+                )
                 Text(text = date, fontSize = 14.sp, color = Color.LightGray)
             }
         }
@@ -169,7 +195,7 @@ fun HistoryDetails(
             Text("$amountPaid₹", fontSize = 20.sp)
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("$energyConsumed kWh", fontSize = 16.sp, color = Color.Green)
+                Text("$energyConsumed kWh", fontSize = 16.sp, color = Color.Gray)
                 Text("Energy consumed", fontSize = 12.sp, color = Color.LightGray)
             }
         }
@@ -237,18 +263,66 @@ fun UrjaSearchField(
 }
 
 
-
-
 @Composable
-fun HistoryDetailScreen(navController: NavController){
-    Scaffold(
-        topBar = {}
-    ) { innerPadding ->
+fun HistoryDetailScreen(navController: NavController) {
+    NavBackScaffold(
+        navController = navController
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            // Icon
+            Box(
+                modifier = Modifier
+                    .size(90.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape)
+                    .background(Color.Yellow),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "S", fontSize = 40.sp, fontWeight = FontWeight.Bold)
+            }
+
+            // Station Name
+            Text(text = "Urja Power House", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+
+            // Amount Paid | Payment Status
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "342₹", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .clip(CircleShape)
+                            .background(Color.Green),
+                        contentAlignment = Alignment.Center
+                    ){ Icon(Icons.Filled.Check, contentDescription = "", tint = Color.White) }
+                    Text(text = "Completed", fontSize = 12.sp)
+                }
+            }
+
+            // Energy Consumed
+            Column {
+                Text(text = "24 kWh", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color.Green)
+                        .padding(horizontal = 5.dp),
+                    text = "Energy consumed",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold)
+            }
+
+            // Location
+            Text(text = "Nagpur-Mumbai Expressway (Samruddhi Mahamarg), Nagpur")
 
         }
     }

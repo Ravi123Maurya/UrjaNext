@@ -5,11 +5,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.ravimaurya.urjanext.presentation.home.HomeScreen
 import com.ravimaurya.urjanext.presentation.welcome.WelcomeScreen
 import com.ravimaurya.urjanext.presentation.auth.AuthenticationScreen
+import com.ravimaurya.urjanext.presentation.history.HistoryDetailScreen
 import com.ravimaurya.urjanext.presentation.history.HistoryScreen
 import com.ravimaurya.urjanext.presentation.mainscreens.MainScreens
 import com.ravimaurya.urjanext.presentation.profile.ProfileScreen
@@ -27,6 +27,7 @@ object NavRoutes {
     const val STATION_SCREEN = "station"
     const val SCANQR_SCREEN = "scanqr"
     const val HISTORY_SCREEN = "history"
+    const val HISTORY_DETAIL_SCREEN = "history-details"
     const val PROFILE_SCREEN = "profile"
 
     const val HOME_NAV_GRAPH = "homeNavGraph"
@@ -34,26 +35,28 @@ object NavRoutes {
 @Composable
 fun MainNavGraph() {
 
-    val authNavController = rememberNavController()
+    val mainNavController = rememberNavController()
 
     NavHost(
-        navController = authNavController,
+        navController = mainNavController,
         startDestination = NavRoutes.SPLASH_SCREEN
     ) {
         // Splash
-        composable(NavRoutes.SPLASH_SCREEN) { SplashScreen(authNavController) }
+        composable(NavRoutes.SPLASH_SCREEN) { SplashScreen(mainNavController) }
         // Welcome
-        composable(NavRoutes.WELCOME_SCREEN) { WelcomeScreen(authNavController) }
+        composable(NavRoutes.WELCOME_SCREEN) { WelcomeScreen(mainNavController) }
         // Authentication
-        composable(NavRoutes.AUTHENTICATION_SCREEN) { AuthenticationScreen(authNavController) }
+        composable(NavRoutes.AUTHENTICATION_SCREEN) { AuthenticationScreen(mainNavController) }
+        // History Details
+        composable(NavRoutes.HISTORY_DETAIL_SCREEN) { HistoryDetailScreen(mainNavController) }
 
         // Home Nav Graph (Wrapper for Main Screens with Bottom Navigation Bar)
-         composable(NavRoutes.HOME_NAV_GRAPH) { MainScreens(authNavController) }
+         composable(NavRoutes.HOME_NAV_GRAPH) { MainScreens(mainNavController) }
     }
 }
 
 @Composable
-fun HomeScreensGraph(navController: NavHostController, authNavController: NavController, isFabClicked: Boolean){
+fun HomeScreensGraph(navController: NavHostController, mainNavController: NavController, isFabClicked: Boolean){
 
     NavHost(
         navController = navController,
@@ -70,10 +73,10 @@ fun HomeScreensGraph(navController: NavHostController, authNavController: NavCon
             ScannerScreen(navController)
         }
         composable(NavRoutes.HISTORY_SCREEN) {
-            HistoryScreen(navController)
+            HistoryScreen(navController, mainNavController)
         }
         composable(NavRoutes.PROFILE_SCREEN) {
-            ProfileScreen(navController, authNavController)
+            ProfileScreen(navController, mainNavController)
         }
     }
 

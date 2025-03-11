@@ -109,7 +109,7 @@ fun ProfileScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.LightGray.copy(alpha = .5f))
-            .padding(horizontal = 12.dp),
+            .padding(start = 12.dp, end = 12.dp, top = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
