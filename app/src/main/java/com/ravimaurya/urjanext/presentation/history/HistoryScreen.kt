@@ -1,5 +1,6 @@
 package com.ravimaurya.urjanext.presentation.history
 
+import androidx.appcompat.widget.SearchView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,16 +27,22 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -55,14 +62,28 @@ import androidx.navigation.NavController
 import com.ravimaurya.urjanext.domain.model.dummyHistoryList
 import com.ravimaurya.urjanext.presentation.components.NavBackScaffold
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
+import com.ravimaurya.urjanext.util.SortHistory
+import com.ravimaurya.urjanext.util.SortOptions
+import com.ravimaurya.urjanext.util.sortBy
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(navController: NavController, mainNavController: NavController) {
 
-    var isDetailClicked by remember { mutableStateOf(false) }
-    var isSortByClicked by remember { mutableStateOf(false) }
 
+    var isSortByClicked by remember { mutableStateOf(false) }
+    var sort by remember { mutableStateOf("") }
+    var newHistoryList by remember { mutableStateOf(dummyHistoryList) }
+    if (isSortByClicked) {
+        SortByBottomSheet(sort, onDismissSortBySheet = {
+            isSortByClicked = false
+            sort = ""
+        }) { sortBy ->
+            // On Apply Click
+            newHistoryList = SortHistory(sortBy).sort(newHistoryList)
+            isSortByClicked = false
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -71,17 +92,23 @@ fun HistoryScreen(navController: NavController, mainNavController: NavController
             .padding(12.dp),
     ) {
 
-        SortHistory()
+        // Sort History
+        SortHistory(sortBy) {
+            isSortByClicked = true
+            sort = it
+        }
         Spacer(Modifier.height(12.dp))
         LazyColumn {
-            items(dummyHistoryList.size) { index ->
+            items(newHistoryList.size) { index ->
                 key(index) {
+
+                    // History Details
                     HistoryDetails(
-                        stationName = dummyHistoryList[index].stationName,
-                        location = dummyHistoryList[index].stationLocation,
-                        date = dummyHistoryList[index].chargingDate,
-                        amountPaid = dummyHistoryList[index].amountPaid,
-                        energyConsumed = dummyHistoryList[index].energyConsumed,
+                        stationName = newHistoryList[index].stationName,
+                        location = newHistoryList[index].stationLocation,
+                        date = newHistoryList[index].chargingDate,
+                        amountPaid = newHistoryList[index].amountPaid,
+                        energyConsumed = newHistoryList[index].energyConsumed,
                         onHistoryDetailClick = {
                             mainNavController.navigate(NavRoutes.HISTORY_DETAIL_SCREEN)
                         }
@@ -96,14 +123,15 @@ fun HistoryScreen(navController: NavController, mainNavController: NavController
 }
 
 @Composable
-fun SortHistory() {
-
-    val sortBy = listOf("Date", "Amount", "Payment Method", "Status")
+fun SortHistory(
+    sortBy: List<String>,
+    isSortByClicked: (String) -> Unit,
+) {
 
     LazyRow() {
         items(sortBy.size) { index ->
             key(index) {
-                SortBy(sortBy[index])
+                SortBy(sortBy[index]) {  isSortByClicked(it) }
                 Spacer(Modifier.width(15.dp))
             }
 
@@ -123,10 +151,11 @@ fun HistoryDetails(
 ) {
 
     val iconColorList = listOf(
-        Color.Yellow.copy(green = .5f),
+        Color.Yellow,
         Color.Cyan,
         Color.Magenta,
-        Color.Blue.copy(red = .6f, green = .4f)
+        Color.Blue,
+        Color.Red
     )
 
     Row(
@@ -206,14 +235,14 @@ fun HistoryDetails(
 @Composable
 fun SortBy(
     sortBy: String,
-    isSortByClicked: () -> Unit = {},
+    isSortByClicked: (String) -> Unit = {},
 ) {
     Row(
         modifier = Modifier
             .wrapContentSize()
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
-            .clickable { isSortByClicked() }
+            .clickable { isSortByClicked(sortBy) }
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -222,7 +251,7 @@ fun SortBy(
     }
 }
 
-@Preview(showBackground = true)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UrjaSearchField(
@@ -303,7 +332,7 @@ fun HistoryDetailScreen(navController: NavController) {
                             .clip(CircleShape)
                             .background(Color.Green),
                         contentAlignment = Alignment.Center
-                    ){ Icon(Icons.Filled.Check, contentDescription = "", tint = Color.White) }
+                    ) { Icon(Icons.Filled.Check, contentDescription = "", tint = Color.White) }
                     Text(text = "Completed", fontSize = 12.sp)
                 }
             }
@@ -318,12 +347,80 @@ fun HistoryDetailScreen(navController: NavController) {
                         .padding(horizontal = 5.dp),
                     text = "Energy consumed",
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold)
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             // Location
             Text(text = "Nagpur-Mumbai Expressway (Samruddhi Mahamarg), Nagpur")
 
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SortByBottomSheet(
+    sortWith: String,
+    onDismissSortBySheet: () -> Unit,
+    onApplyClick: (SortOptions) -> Unit
+) {
+
+    var selectedOption by remember { mutableStateOf(SortOptions.NULL) }
+    val amountOptions = listOf(SortOptions.HIGHEST, SortOptions.LOWEST)
+    val dateOptions = listOf(SortOptions.NEWEST, SortOptions.OLDEST)
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            onDismissSortBySheet()
+        },
+    ) {
+
+        Column {
+
+            when (sortWith) {
+                sortBy[0] -> {
+                    dateOptions.forEach {
+                        SortOption(it.name, selectedOption == it) { selectedOption = it }
+                    }
+                }
+                sortBy[1] -> {
+                    amountOptions.forEach {
+                        SortOption(it.name, selectedOption == it) { selectedOption = it }
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.LightGray
+                    ),
+                    onClick = { onDismissSortBySheet() }
+                ) {
+                    Text("Cancel")
+                }
+                Button(
+                    onClick = { onApplyClick(selectedOption) }
+                ) {
+                    Text("Apply")
+                }
+            }
+
+        }
+
+    }
+}
+
+@Composable
+fun SortOption(option:String, selected: Boolean, onOptionClick: () -> Unit){
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        RadioButton(selected, onClick = { onOptionClick() })
+        Text(option)
     }
 }

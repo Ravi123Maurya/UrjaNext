@@ -35,7 +35,7 @@ val Typography = Typography(
 //        lineHeight = 24.sp
 //    ),
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,// w700
         fontSize = 16.sp,
         lineHeight = 24.sp,

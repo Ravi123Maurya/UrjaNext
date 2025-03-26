@@ -33,12 +33,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ShapeDefaults
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -70,8 +64,6 @@ import com.ravimaurya.urjanext.presentation.components.AlertDialogUrja
 import com.ravimaurya.urjanext.presentation.components.CircularProgressDialog
 import com.ravimaurya.urjanext.presentation.components.NavBackTopAppBar
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
-import kotlin.math.roundToInt
-import kotlin.math.truncate
 
 
 @Composable
@@ -88,13 +80,13 @@ fun ProfileScreen(
         ecoModeEnabled = ecoModeEnabled,
         onEcoModeChanged = { ecoModeEnabled = !ecoModeEnabled },
         onLogoutConfirm = {
-        authenticationViewModel.logout()
-        authNavController.navigate(NavRoutes.WELCOME_SCREEN){
-            popUpTo(0){
-                inclusive = true
+            authenticationViewModel.logout()
+            authNavController.navigate(NavRoutes.WELCOME_SCREEN) {
+                popUpTo(0) {
+                    inclusive = true
+                }
             }
-        }
-    })
+        })
 
 }
 
@@ -102,8 +94,15 @@ fun ProfileScreen(
 fun ProfileScreenContent(
     ecoModeEnabled: Boolean,
     onEcoModeChanged: (Boolean) -> Unit,
-    onLogoutConfirm: () -> Unit
+    onLogoutConfirm: () -> Unit,
 ) {
+
+    val carList = listOf(
+        R.drawable.sporty_car,
+        R.drawable.img1,
+        R.drawable.img2,
+        R.drawable.img3
+    )
 
     LazyColumn(
         modifier = Modifier
@@ -113,10 +112,11 @@ fun ProfileScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(3) { index ->
+        items(carList.size) { index ->
             key(index) {
                 CarDetail(
-                    ecoModeEnabled,
+                    carImage = carList[index],
+                    ecoModeEnabled = ecoModeEnabled,
                     onEcoModeChanged = { onEcoModeChanged(it) }
                 )
                 Spacer(Modifier.height(8.dp))
@@ -136,11 +136,10 @@ fun ProfileScreenContent(
 
 @Composable
 fun CarDetail(
-    ecoModeEnabled:Boolean,
-    onEcoModeChanged: (Boolean) -> Unit
-    ) {
-
-
+    carImage: Int,
+    ecoModeEnabled: Boolean,
+    onEcoModeChanged: (Boolean) -> Unit,
+) {
 
     Column(
         modifier = Modifier
@@ -164,9 +163,9 @@ fun CarDetail(
         ) {
             // Car Image
             Image(
-                painter = painterResource(R.drawable.sporty_car),
+                painter = painterResource(carImage),
                 contentDescription = "",
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.Crop
             )
         }
 
@@ -254,7 +253,7 @@ fun EcoModeSwitch(
     checked: Boolean,
     onEcoModeChanged: (Boolean) -> Unit,
     width: Dp = 45.dp,  // Default switch width
-    height: Dp = 20.dp  // Default switch height
+    height: Dp = 20.dp,  // Default switch height
 ) {
 
     // Custom Switch implementation

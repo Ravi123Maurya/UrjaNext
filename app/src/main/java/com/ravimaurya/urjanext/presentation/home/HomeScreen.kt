@@ -53,7 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.accompanist.permissions.rememberPermissionState
+
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -68,7 +68,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.ravimaurya.urjanext.R
+import com.ravimaurya.urjanext.BuildConfig
 import com.ravimaurya.urjanext.presentation.components.AlertDialogUrja
 import com.ravimaurya.urjanext.presentation.components.CircularProgressBar
 import com.ravimaurya.urjanext.presentation.components.CircularProgressDialog
@@ -76,7 +76,6 @@ import com.ravimaurya.urjanext.presentation.home.urjalocation.PermissionEvent
 import com.ravimaurya.urjanext.presentation.home.urjalocation.UrjaLocationViewModel
 import com.ravimaurya.urjanext.presentation.home.urjalocation.ViewState
 import com.ravimaurya.urjanext.presentation.home.urjalocation.hasLocationPermission
-import kotlin.time.Duration.Companion.hours
 
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalPermissionsApi::class)
@@ -201,7 +200,7 @@ fun UrjaMap(
 
     val route by urjaLocationViewModel.route.collectAsStateWithLifecycle()
     val destination = LatLng(18.921983, 72.834656)// Example: Gateway of India
-
+    val mapApiKey = BuildConfig.MAPS_API_KEY
 
     val context = LocalContext.current
     val uiSettings by remember {
@@ -237,7 +236,7 @@ fun UrjaMap(
         urjaLocationViewModel.getRoute(
             origin = currentPosition,
             destination = destination,
-            apiKey = "AIzaSyAdKSH2ltnWhZgpLYXV41VmQ1wH20crGLc"
+            apiKey = mapApiKey
         )
     }
 

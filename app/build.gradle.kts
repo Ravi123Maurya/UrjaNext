@@ -6,6 +6,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     id ("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+
 }
 
 android {
@@ -23,6 +24,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+
+        buildConfigField("String", "MAPS_API_KEY", "\"${project.findProperty("MAPS_API_KEY")}\"")
     }
 
     buildTypes {
@@ -43,6 +47,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -51,6 +56,11 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    secrets{
+        // Configure the plugin
+        defaultPropertiesFileName = "gradle.properties"
     }
 }
 
@@ -91,6 +101,7 @@ dependencies {
     //Google Services & Maps
     val mapsComposeVersion = "4.3.3"
     implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-places:17.0.0")
     implementation("com.google.maps.android:maps-compose:$mapsComposeVersion")
     implementation ("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.maps.android:maps-compose-utils:$mapsComposeVersion")
