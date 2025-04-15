@@ -15,6 +15,7 @@ import com.ravimaurya.urjanext.presentation.mainscreens.MainScreens
 import com.ravimaurya.urjanext.presentation.profile.ProfileScreen
 import com.ravimaurya.urjanext.presentation.scanner.ScannerScreen
 import com.ravimaurya.urjanext.presentation.splashscreen.SplashScreen
+import com.ravimaurya.urjanext.presentation.station.EVMapScreen
 import com.ravimaurya.urjanext.presentation.station.StationScreen
 
 
@@ -56,15 +57,20 @@ fun MainNavGraph() {
 }
 
 @Composable
-fun HomeScreensGraph(navController: NavHostController, mainNavController: NavController, isFabClicked: Boolean){
+fun HomeScreensGraph(
+    navController: NavHostController,
+    mainNavController: NavController,
+    isFabClicked: Boolean,
+    isSearchClicked: Boolean
+){
 
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.HISTORY_SCREEN,
+        startDestination = NavRoutes.STATION_SCREEN,
     ){
 
         composable(NavRoutes.HOME_SCREEN) {
-            HomeScreen(navController, isFabClicked = isFabClicked)
+            HomeScreen(navController, isFabClicked = isFabClicked, isSearchClicked = isSearchClicked)
         }
         composable(NavRoutes.STATION_SCREEN) {
             StationScreen(navController)

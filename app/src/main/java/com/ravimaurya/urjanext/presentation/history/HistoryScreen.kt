@@ -252,45 +252,6 @@ fun SortBy(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun UrjaSearchField(
-    query: (String) -> Unit = {},
-) {
-
-    var isActive by remember { mutableStateOf(false) }
-    var myQuery by remember { mutableStateOf("") }
-
-
-    DockedSearchBar(
-        modifier = Modifier,
-        query = myQuery,
-        onSearch = {},
-        onQueryChange = {
-            myQuery = it
-            query(myQuery)
-        },
-        onActiveChange = {
-            println("Activated")
-        },
-        active = isActive,
-        leadingIcon = { Icon(Icons.Filled.Search, "Search Location") },
-        trailingIcon = {
-            IconButton(
-                onClick = { myQuery = "" }
-            ) {
-                Icon(Icons.Filled.Clear, "Clear inputs")
-            }
-        },
-        placeholder = { Text("Urja Search here") },
-        shape = ShapeDefaults.Medium
-    ) {
-        Text("Search Content")
-    }
-
-
-}
-
 
 @Composable
 fun HistoryDetailScreen(navController: NavController) {

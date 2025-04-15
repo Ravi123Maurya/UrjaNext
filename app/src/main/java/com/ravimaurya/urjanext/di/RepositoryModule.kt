@@ -2,6 +2,8 @@ package com.ravimaurya.urjanext.di
 
 import android.content.Context
 import com.google.android.gms.location.LocationServices
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.ravimaurya.urjanext.data.repository_impl.AuthRepositoryImpl
@@ -10,6 +12,8 @@ import com.ravimaurya.urjanext.domain.repository.AuthenticationRepository
 import com.ravimaurya.urjanext.domain.repository.ProfileRepository
 import com.ravimaurya.urjanext.presentation.home.urjalocation.ILocationService
 import com.ravimaurya.urjanext.presentation.home.urjalocation.LocationService
+import com.ravimaurya.urjanext.presentation.station.LocationClient
+import com.ravimaurya.urjanext.presentation.station.LocationClientImpl
 import com.ravimaurya.urjanext.util.UserDataPreferences
 import dagger.Module
 import dagger.Provides
@@ -64,5 +68,18 @@ object RepositoryModule {
         return ProfileRepositoryImpl(firestore)
     }
 
+
+    /*--------- Google Map -------*/
+    @Provides
+    @Singleton
+    fun providePlacesClient(@ApplicationContext context: Context): PlacesClient {
+        return Places.createClient(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationClient2(@ApplicationContext context: Context): LocationClient {
+        return LocationClientImpl(context)
+    }
 
 }

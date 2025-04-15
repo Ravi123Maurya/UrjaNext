@@ -9,6 +9,8 @@ plugins {
 
     id ("com.google.android.libraries.mapsplatform.secrets-gradle-plugin") version "2.0.1" apply false
 
+    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0" apply false
+
 }
 
 buildscript{
@@ -17,3 +19,4 @@ buildscript{
         mavenCentral()
     }
 }
+

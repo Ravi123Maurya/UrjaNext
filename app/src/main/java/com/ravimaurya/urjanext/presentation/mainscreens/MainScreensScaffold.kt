@@ -17,10 +17,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -28,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -52,7 +55,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ravimaurya.urjanext.R
 import com.ravimaurya.urjanext.presentation.history.HistoryScreen
-import com.ravimaurya.urjanext.presentation.history.UrjaSearchField
 import com.ravimaurya.urjanext.presentation.home.HomeScreen
 import com.ravimaurya.urjanext.presentation.navigation.HomeScreensGraph
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
@@ -62,7 +64,7 @@ import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreens(authNavController: NavHostController) {
-    val strokeColor = MaterialTheme.colorScheme.primary
+
 
     val homeNavController = rememberNavController()
     val navBackStackEntry by homeNavController.currentBackStackEntryAsState()
@@ -137,11 +139,11 @@ fun MainScreens(authNavController: NavHostController) {
         bottomBar = {
             BottomUrjaBar(homeNavController)
         },
-        floatingActionButton = {
-            AnimatedVisibility(currentRoute == NavRoutes.HOME_SCREEN) {
-                UrjaFab(fabClick = { isFabClicked = !isFabClicked }, isFabClicked)
-            }
-        }
+//        floatingActionButton = {
+//            AnimatedVisibility(currentRoute == NavRoutes.HOME_SCREEN) {
+//                UrjaFab(fabClick = { isFabClicked = !isFabClicked }, isFabClicked)
+//            }
+//        }
     ) { innerPadding ->
 
         Box(
@@ -149,21 +151,7 @@ fun MainScreens(authNavController: NavHostController) {
             contentAlignment = Alignment.Center
         ) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp)
-                    .zIndex(1f)
-            ) {
-
-
-                AnimatedVisibility(hasSearchClicked) {
-                    UrjaSearchField() { }
-                }
-
-            }
-
-            HomeScreensGraph(homeNavController, authNavController, isFabClicked)
+            HomeScreensGraph(homeNavController, authNavController, isFabClicked, hasSearchClicked)
         }
     }
 }
@@ -184,6 +172,47 @@ fun UrjaFab(
         Icon(if (isFabClicked) Icons.Filled.Close else Icons.Filled.Map, "")
     }
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UrjaSearchField(
+    query: (String) -> Unit = {},
+) {
+
+    var isActive by remember { mutableStateOf(false) }
+    var myQuery by remember { mutableStateOf("") }
+
+
+    SearchBar(
+        modifier = Modifier,
+        query = myQuery,
+        onSearch = {},
+        onQueryChange = {
+            myQuery = it
+            query(myQuery)
+        },
+        onActiveChange = {
+            println("Activated")
+        },
+        active = isActive,
+        leadingIcon = { Icon(Icons.Filled.Search, "Search Location") },
+        trailingIcon = {
+            IconButton(
+                onClick = { myQuery = "" }
+            ) {
+                Icon(Icons.Filled.Clear, "Clear inputs")
+            }
+        },
+        placeholder = { Text("Urja Search here") },
+        shape = ShapeDefaults.Medium,
+    ) {
+        Text("Search EV stations or location")
+    }
+
+
+}
+
 
 
 
