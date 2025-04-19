@@ -85,6 +85,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
 import com.ravimaurya.urjanext.R
+import com.ravimaurya.urjanext.presentation.components.ChargingStationCard
 import com.ravimaurya.urjanext.presentation.components.MyLocationFab
 import com.ravimaurya.urjanext.presentation.components.NavBackTopAppBar
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
@@ -141,7 +142,7 @@ fun StationScreen(navController: NavController) {
 
         }
 
-        MyLocationFab()
+        Spacer(Modifier.height(10.dp))
     }
 
 }

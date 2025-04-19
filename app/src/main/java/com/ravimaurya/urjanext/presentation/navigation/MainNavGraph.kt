@@ -66,7 +66,7 @@ fun HomeScreensGraph(
 
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.STATION_SCREEN,
+        startDestination = NavRoutes.HOME_SCREEN,
     ){
 
         composable(NavRoutes.HOME_SCREEN) {
@@ -79,8 +79,10 @@ fun HomeScreensGraph(
             ScannerScreen(navController)
         }
         composable(NavRoutes.HISTORY_SCREEN) {
-            HistoryScreen(navController, mainNavController)
+//            HistoryScreen(navController, mainNavController)
+            EVMapScreen()
         }
+
         composable(NavRoutes.PROFILE_SCREEN) {
             ProfileScreen(navController, mainNavController)
         }
