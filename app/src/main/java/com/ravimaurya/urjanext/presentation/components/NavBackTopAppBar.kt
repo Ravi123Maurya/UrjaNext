@@ -26,16 +26,7 @@ fun NavBackTopAppBar(
     val strokeColor = MaterialTheme.colorScheme.primary
 
     TopAppBar(
-        modifier = Modifier
-            .drawBehind {
-
-                drawLine(
-                    color = strokeColor,
-                    start = Offset(0f, size.height), // Start at top-left corner
-                    end = Offset(size.width, size.height), // End at top-right corner
-                    strokeWidth = 6f
-                )
-            },
+        modifier = Modifier,
         title = { Text(title) },
         navigationIcon = {
             IconButton(

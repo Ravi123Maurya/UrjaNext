@@ -89,61 +89,14 @@ import com.ravimaurya.urjanext.presentation.components.ChargingStationCard
 import com.ravimaurya.urjanext.presentation.components.MyLocationFab
 import com.ravimaurya.urjanext.presentation.components.NavBackTopAppBar
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
+import com.ravimaurya.urjanext.presentation.tripplanner.TripPlannerScreen
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StationScreen(navController: NavController) {
+fun StationScreen(navController: NavController, mainNavController: NavController) {
 
-    val carIcon = painterResource(R.drawable.ev_distance_progress)
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp),
-    ) {
-        Canvas(
-           modifier = Modifier
-               .fillMaxWidth()
-               .height(80.dp)
-               .clip(RoundedCornerShape(15.dp))
-               .background(Color.Green.copy(alpha = .1f))
-               .border(3.dp, Color.Green, RoundedCornerShape(15.dp))
-               .clickable {  }
-               .padding(30.dp)
-        ) {
-            val canvasWidth = size.width
-            val canvasHeight = size.height
-
-            val radius = 8.dp.toPx()
-
-            // Line Bar
-            drawLine(
-                start = Offset(0f, canvasHeight/2),
-                end = Offset(canvasWidth, canvasHeight/2),
-                color = Color.LightGray,
-                strokeWidth = 6.dp.toPx()
-            )
-
-            // Starting Circle 1
-            drawCircle(
-               color = Color.Green,
-                radius = radius,
-                center = Offset(0f, canvasHeight/2)
-            )
-
-            // Ending Circle 2
-            drawCircle(
-                color = Color.Green,
-                radius = radius,
-                center = Offset(canvasWidth, canvasHeight/2)
-            )
-
-
-
-        }
-
-        Spacer(Modifier.height(10.dp))
-    }
+    TripPlannerScreen(navController, mainNavController)
 
 }
 

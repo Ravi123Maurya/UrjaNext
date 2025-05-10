@@ -11,12 +11,13 @@ import com.ravimaurya.urjanext.presentation.welcome.WelcomeScreen
 import com.ravimaurya.urjanext.presentation.auth.AuthenticationScreen
 import com.ravimaurya.urjanext.presentation.history.HistoryDetailScreen
 import com.ravimaurya.urjanext.presentation.history.HistoryScreen
+import com.ravimaurya.urjanext.presentation.history.TransactionHistoryDetailScreen
 import com.ravimaurya.urjanext.presentation.mainscreens.MainScreens
 import com.ravimaurya.urjanext.presentation.profile.ProfileScreen
 import com.ravimaurya.urjanext.presentation.scanner.ScannerScreen
 import com.ravimaurya.urjanext.presentation.splashscreen.SplashScreen
-import com.ravimaurya.urjanext.presentation.station.EVMapScreen
 import com.ravimaurya.urjanext.presentation.station.StationScreen
+import com.ravimaurya.urjanext.presentation.transaction.TransactionSuccessScreen
 
 
 object NavRoutes {
@@ -30,6 +31,7 @@ object NavRoutes {
     const val HISTORY_SCREEN = "history"
     const val HISTORY_DETAIL_SCREEN = "history-details"
     const val PROFILE_SCREEN = "profile"
+    const val TRANSACTION_SCREEN = "transaction"
 
     const val HOME_NAV_GRAPH = "homeNavGraph"
 }
@@ -49,7 +51,10 @@ fun MainNavGraph() {
         // Authentication
         composable(NavRoutes.AUTHENTICATION_SCREEN) { AuthenticationScreen(mainNavController) }
         // History Details
-        composable(NavRoutes.HISTORY_DETAIL_SCREEN) { HistoryDetailScreen(mainNavController) }
+        composable(NavRoutes.HISTORY_DETAIL_SCREEN) { TransactionHistoryDetailScreen(mainNavController) }
+        // Transaction
+        composable(NavRoutes.TRANSACTION_SCREEN) { TransactionSuccessScreen(mainNavController = mainNavController) }
+
 
         // Home Nav Graph (Wrapper for Main Screens with Bottom Navigation Bar)
          composable(NavRoutes.HOME_NAV_GRAPH) { MainScreens(mainNavController) }
@@ -61,26 +66,27 @@ fun HomeScreensGraph(
     navController: NavHostController,
     mainNavController: NavController,
     isFabClicked: Boolean,
-    isSearchClicked: Boolean
+    isSearchClicked: Boolean,
+    searchDismiss: () -> Unit
 ){
 
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.HOME_SCREEN,
+        startDestination = NavRoutes.STATION_SCREEN,
     ){
 
         composable(NavRoutes.HOME_SCREEN) {
-            HomeScreen(navController, isFabClicked = isFabClicked, isSearchClicked = isSearchClicked)
+            HomeScreen(navController, mainNavController, isFabClicked = isFabClicked, isSearchClicked = isSearchClicked){ searchDismiss()}
         }
         composable(NavRoutes.STATION_SCREEN) {
-            StationScreen(navController)
+            StationScreen(navController, mainNavController)
         }
         composable(NavRoutes.SCANQR_SCREEN) {
-            ScannerScreen(navController)
+            ScannerScreen(navController, mainNavController)
         }
         composable(NavRoutes.HISTORY_SCREEN) {
-//            HistoryScreen(navController, mainNavController)
-            EVMapScreen()
+            HistoryScreen(navController, mainNavController)
+//            EVMapScreen()
         }
 
         composable(NavRoutes.PROFILE_SCREEN) {

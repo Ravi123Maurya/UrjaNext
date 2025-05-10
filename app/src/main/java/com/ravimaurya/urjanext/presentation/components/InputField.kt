@@ -31,11 +31,14 @@ fun OutlinedInputField(
     label: Int? = null,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
-    onTrailingIconClick: () -> Unit = {}
+    onTrailingIconClick: () -> Unit = {},
+    readOnly: Boolean = false,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier
 ) {
 
     OutlinedTextField(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         label = { Text(text = stringResource(label!!)) },
         value = value,
         onValueChange = {
@@ -60,9 +63,11 @@ fun OutlinedInputField(
         shape = ShapeDefaults.ExtraLarge,
         textStyle = MaterialTheme.typography.bodyMedium,
         colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = Color.LightGray,
+            unfocusedBorderColor = Color.Gray,
             unfocusedLabelColor = Color.Gray,
             unfocusedLeadingIconColor = Color.Gray
-        )
+        ),
+        readOnly = readOnly,
+        enabled = enabled
     )
 }

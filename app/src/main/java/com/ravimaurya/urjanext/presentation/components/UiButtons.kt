@@ -81,7 +81,7 @@ fun BigButton(
         },
         enabled = enabled,
         colors = colors,
-        shape = ShapeDefaults.Medium,
+        shape = ShapeDefaults.Large,
         interactionSource = interactionSource
     ) {
         Text(

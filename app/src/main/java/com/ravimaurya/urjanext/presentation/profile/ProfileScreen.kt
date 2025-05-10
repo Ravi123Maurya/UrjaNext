@@ -163,6 +163,7 @@ fun CarDetail(
         ) {
             // Car Image
             Image(
+                modifier = Modifier.fillMaxSize(),
                 painter = painterResource(carImage),
                 contentDescription = "",
                 contentScale = ContentScale.Crop

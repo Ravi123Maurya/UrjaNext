@@ -50,10 +50,17 @@
     <string name="page4_title">Earn Rewards As You Charge</string>
     <string name="page4_text">Collect coins with every charging session and unlock exclusive benefits and discounts.</string>
 
+    <!-- Trip Planner -->
+    <string name="start_location">Start Location</string>
+    <string name="destination">Destination</string>
+    <string name="plan_trip">Plan Trip</string>
+    <string name="cancel_trip">Cancel Trip</string>
 
     <!-- App Name -->
     <string name="app_name">UrjaNext</string>
 
     <!-- Search -->
     <string name="search_location">Search location</string>
+
+    <string name="get_a_route">GET A ROUTE</string>
 </resources>

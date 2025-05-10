@@ -2,15 +2,24 @@ package com.ravimaurya.urjanext.presentation.home
 
 import android.Manifest
 import android.content.Intent
-import android.icu.text.StringSearch
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,27 +27,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ElectricCar
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.LocationDisabled
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,16 +56,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -74,14 +82,14 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
 import com.ravimaurya.urjanext.BuildConfig
 import com.ravimaurya.urjanext.domain.model.EVStation
+import com.ravimaurya.urjanext.domain.model.dummyLocationsNearThane
 import com.ravimaurya.urjanext.presentation.components.ChargingStationCard
 import com.ravimaurya.urjanext.presentation.components.ChargingStationDetailCard
 import com.ravimaurya.urjanext.presentation.components.CircularProgressBar
-import com.ravimaurya.urjanext.presentation.components.DemoSearchBar
 import com.ravimaurya.urjanext.presentation.components.MyLocationFab
+import com.ravimaurya.urjanext.presentation.components.UrjaSearchScreen
 import com.ravimaurya.urjanext.presentation.home.urjalocation.CameraPositionSaver
 import com.ravimaurya.urjanext.presentation.home.urjalocation.MapPropertiesSaver
 import com.ravimaurya.urjanext.presentation.home.urjalocation.MapUiSettingsSaver
@@ -89,7 +97,6 @@ import com.ravimaurya.urjanext.presentation.home.urjalocation.PermissionEvent
 import com.ravimaurya.urjanext.presentation.home.urjalocation.UrjaLocationViewModel
 import com.ravimaurya.urjanext.presentation.home.urjalocation.ViewState
 import com.ravimaurya.urjanext.presentation.home.urjalocation.hasLocationPermission
-import com.ravimaurya.urjanext.presentation.station.EVMapViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -99,10 +106,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     navController: NavController,
+    mainNavController: NavController,
     urjaLocationViewModel: UrjaLocationViewModel = hiltViewModel(),
     evSearchViewModel: EVSearchViewModel = hiltViewModel(),
     isFabClicked: Boolean,
     isSearchClicked: Boolean,
+    searchDismiss: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -119,6 +128,8 @@ fun HomeScreen(
     var evStations by remember { mutableStateOf(emptyList<EVStation>()) }
     var searchJob by remember { mutableStateOf<Job?>(null) }
     var currentLoc by remember { mutableStateOf<LatLng>(LatLng(18.921983, 72.834656)) }
+    var searchLocation by remember { mutableStateOf<LatLng?>(null) }
+
     // Map Search Query
     LaunchedEffect(searchQuery) {
         searchJob?.cancel() // Cancel the previous search if a new one starts
@@ -144,6 +155,17 @@ fun HomeScreen(
             cameraState.centerOnLocation(it)
         }
     }
+
+    UrjaSearchScreen(
+        isVisible = isSearchClicked,
+        onDismiss = {
+            searchDismiss()
+        },
+        onLocationSelected = { evStation ->
+            searchLocation = evStation.location
+            searchDismiss()
+        }
+    )
 
     when {
         permissionState.allPermissionsGranted -> {
@@ -213,17 +235,10 @@ fun HomeScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    Box(
+        modifier = Modifier.fillMaxSize(),
     ) {
-        AnimatedVisibility(isSearchClicked) {
-//                            EVStationSearchBar() { query ->
-//                                searchQuery = query
-//                            }
-            DemoSearchBar(stationPrediction = evStations) { query ->
-                searchQuery = query
-            }
-        }
+
 
         UrjaMap(
             currentPosition = LatLng(
@@ -233,8 +248,14 @@ fun HomeScreen(
             cameraState = cameraState,
             urjaLocationViewModel,
             evSearchViewModel,
-            isSearchClicked
+            isSearchClicked,
+            searchedLocation = searchLocation,
+            onClearStationClick = {
+                searchLocation = null
+                evStations = emptyList()
+            }
         )
+
     }
 
 
@@ -247,7 +268,9 @@ fun UrjaMap(
     cameraState: CameraPositionState,
     urjaLocationViewModel: UrjaLocationViewModel,
     evSearchViewModel: EVSearchViewModel,
-    isSearchClicked: Boolean
+    isSearchClicked: Boolean,
+    searchedLocation: LatLng?,
+    onClearStationClick: () -> Unit
 ) {
 
     val route by urjaLocationViewModel.route.collectAsStateWithLifecycle()
@@ -279,7 +302,6 @@ fun UrjaMap(
         )
 
     }
-    val marker = LatLng(currentPosition.latitude, currentPosition.longitude)
 
     var onMapClickMarker by remember {
         mutableStateOf(LatLng(0.0, 0.0))
@@ -326,7 +348,7 @@ fun UrjaMap(
     ) {
         // Google Map
         GoogleMap(
-            cameraPositionState = cameraPositionState2,
+            cameraPositionState = cameraPositionState,
             properties = mapProperties,
             uiSettings = uiSettings,
             onMapClick = {
@@ -339,13 +361,43 @@ fun UrjaMap(
                 isOnMapClickMarkerVisible = true
             }
         ) {
-            Marker(
-                state = MarkerState(currentPosition),
-                onClick = { mkr ->
-                    isChargingStationMarkerClicked = !isChargingStationMarkerClicked
-                    true
+
+
+            if (searchedLocation != null) {
+                scope.launch {
+                    cameraPositionState.centerOnLocation(searchedLocation)
                 }
-            )
+                Marker(
+                    state = MarkerState(searchedLocation),
+                    onClick = {
+                        isChargingStationMarkerClicked = !isChargingStationMarkerClicked
+                        true
+                    }
+                )
+
+
+                dummyLocationsNearThane.forEach { location ->
+                    Marker(
+                        state = MarkerState(
+                            LatLng(
+                                searchedLocation.latitude + location.latitude,
+                                searchedLocation.longitude + location.longitude
+                            )
+                        ),
+                        onClick = {
+                            scope.launch {
+                                cameraPositionState.centerOnLocation( LatLng(
+                                    searchedLocation.latitude + location.latitude,
+                                    searchedLocation.longitude + location.longitude
+                                ))
+                            }
+                            isChargingStationMarkerClicked = !isChargingStationMarkerClicked
+                            true
+                        }
+                    )
+                }
+            }
+
 
         }
 
@@ -357,7 +409,7 @@ fun UrjaMap(
                 println("Current Position2 : ${currentPosition.latitude}, ${currentPosition.longitude}")
                 currentPosition?.let {
                     scope.launch {
-                        cameraPositionState2.animate(
+                        cameraPositionState.animate(
                             CameraUpdateFactory.newLatLngZoom(it, 17f)
                         )
                         println("Current Position : ${it.latitude}, ${it.longitude}")
@@ -367,34 +419,34 @@ fun UrjaMap(
             hasLocationPermission = context.hasLocationPermission()
         )
 
+        ClearSearchedEV(
+            modifier = Modifier.align(Alignment.BottomEnd),
+            hasStationSearched = searchedLocation != null,
+            onClick = {
+                onClearStationClick()
+            }
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
         ) {
             // Charging Station Detail
-            AnimatedVisibility(
-                visible = isChargingStationMarkerClicked && !isSearchClicked,
-                enter = slideInVertically(initialOffsetY = { it }),  // Slide in from bottom
-                exit = if(isContinueClicked) fadeOut() else slideOutVertically(targetOffsetY = { it })    // Slide out to bottom
-            ) {
-                ChargingStationCard(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    onContinueClick = {
-                        isChargingStationMarkerClicked = false
-                        isContinueClicked = true
-                    }
-                )
-            }
 
-            AnimatedVisibility(
-                visible = isContinueClicked,
-                enter = slideInVertically(initialOffsetY = { it }),  // Slide in from bottom
-                exit = if(isContinueClicked) fadeOut() else slideOutVertically(targetOffsetY = { it })
-            ) {
-                ChargingStationDetailCard()
-            }
+            ChargingStationCard(
+                isClicked = isChargingStationMarkerClicked && !isSearchClicked,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                onContinueClick = {
+                    isChargingStationMarkerClicked = false
+                    isContinueClicked = true
+                }
+            )
+
+
+            ChargingStationDetailCard(isContinueClicked)
+
         }
     }
 
@@ -443,3 +495,75 @@ private suspend fun CameraPositionState.centerOnLocation(
     ),
     durationMs = 1500
 )
+
+
+@Composable
+fun ClearSearchedEV(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    hasStationSearched: Boolean = false,
+) {
+    var isAnimating by remember { mutableStateOf(false) }
+    val rotation by animateFloatAsState(
+        targetValue = if (isAnimating) 360f else 0f,
+        animationSpec = tween(500, easing = FastOutSlowInEasing),
+        finishedListener = { isAnimating = false }
+    )
+    AnimatedVisibility(
+        visible = hasStationSearched,
+        enter = scaleIn(),
+        exit = scaleOut()
+    ) {
+        Box(
+            modifier = modifier
+                .wrapContentSize()
+                .padding(16.dp)
+        ) {
+            Box(
+                modifier = modifier
+                    .size(45.dp)
+                    .shadow(
+                        elevation = 6.dp,
+                        shape = CircleShape,
+                        spotColor = Color.Black.copy(alpha = 0.3f)
+                    )
+                    .clip(CircleShape)
+                    .background(
+                        Color.Green.copy(alpha = .8f)
+                    )
+                    .clickable {
+                        isAnimating = true
+                        onClick()
+                    }
+                    .graphicsLayer {
+                        rotationZ = rotation
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                // Add subtle pulse animation when location is available
+                val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                val scale by infiniteTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(800),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "pulse scale"
+                )
+
+                Icon(
+                    imageVector = Icons.Filled.Clear,
+                    contentDescription = "Clear Searched Locations",
+                    modifier = Modifier
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                        .size(24.dp)
+                )
+            }
+        }
+    }
+
+}

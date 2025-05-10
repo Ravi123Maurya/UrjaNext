@@ -1,5 +1,9 @@
 package com.ravimaurya.urjanext.presentation.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -46,13 +50,13 @@ import com.ravimaurya.urjanext.R
 fun StationDetail23(modifier: Modifier = Modifier) {
 
     Column(
-       modifier = Modifier
-           .fillMaxWidth()
-           .shadow(3.dp)
-           .clip(RoundedCornerShape(5.dp))
-           .padding(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(3.dp)
+            .clip(RoundedCornerShape(5.dp))
+            .padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
-    ){
+    ) {
         // Station Icon - Open
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -70,21 +74,23 @@ fun StationDetail23(modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier
                 .padding(start = 40.dp),
-        ){
+        ) {
             Text("Connector type", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Row(
 
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
-                    Modifier.size(10.dp)
-                    .clip(CircleShape)
-                    .background(Color.Cyan)
+                    Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(Color.Cyan)
                 )
                 Text("CCS5-2")
                 Spacer(Modifier.width(50.dp))
                 Box(
-                    Modifier.size(10.dp)
+                    Modifier
+                        .size(10.dp)
                         .clip(CircleShape)
                         .background(Color.Gray)
                 )
@@ -104,58 +110,65 @@ fun StationDetail23(modifier: Modifier = Modifier) {
 
 }
 
-
-@Preview(showBackground = true)
 @Composable
 fun ChargingStationCard(
+    isClicked: Boolean,
     modifier: Modifier = Modifier,
     isOpen: Boolean = true,
     hours: String = "09.00 - 24.00",
     selectedConnector: String = "CCS5-2",
     connectorOptions: List<String> = listOf("CCS5-2", "BHA-98"),
     onConnectorSelected: (String) -> Unit = {},
-    onContinueClick: () -> Unit = {}
+    onContinueClick: () -> Unit = {},
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .shadow(elevation = 8.dp, shape = RoundedCornerShape(5.dp), clip = false),
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+
+    AnimatedVisibility(
+        visible = isClicked,
+        enter = slideInVertically(initialOffsetY = { it }),  // Slide in from bottom
+        exit = if (isClicked) fadeOut() else slideOutVertically(targetOffsetY = { it })    // Slide out to bottom
     ) {
-        Column(
-            modifier = Modifier
+        Card(
+            modifier = modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(16.dp)
+                .shadow(elevation = 8.dp, shape = RoundedCornerShape(5.dp), clip = false),
+            shape = RoundedCornerShape(10.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
-            // Header with station icon and status
-            StationHeader(isOpen = isOpen, hours = hours)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                // Header with station icon and status
+                StationHeader(isOpen = isOpen, hours = hours)
 
-            // Connector type section
-            Text(
-                text = "Connector type",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                modifier = Modifier.padding(start = 15.dp, top = 15.dp)
-            )
+                // Connector type section
+                Text(
+                    text = "Connector type",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(start = 15.dp, top = 15.dp)
+                )
 
-            // Connector options
-            ConnectorOptions(
-                options = connectorOptions,
-                selectedOption = selectedConnector,
-                onOptionSelected = onConnectorSelected
-            )
+                // Connector options
+                ConnectorOptions(
+                    options = connectorOptions,
+                    selectedOption = selectedConnector,
+                    onOptionSelected = onConnectorSelected
+                )
 
-            // Continue button
-            BigButton(
-                label = R.string.continue_,
-                onClick = {
-                    onContinueClick()
-                }
-            )
+                // Continue button
+                BigButton(
+                    label = R.string.continue_,
+                    onClick = {
+                        onContinueClick()
+                    }
+                )
+            }
         }
     }
+
 }
 
 @Composable
@@ -211,7 +224,7 @@ private fun StationStatus(isOpen: Boolean, hours: String) {
 private fun ConnectorOptions(
     options: List<String>,
     selectedOption: String,
-    onOptionSelected: (String) -> Unit
+    onOptionSelected: (String) -> Unit,
 ) {
     Row(modifier = Modifier.fillMaxWidth()) {
         options.forEach { option ->
@@ -231,7 +244,7 @@ private fun ConnectorOption(
     text: String,
     isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
