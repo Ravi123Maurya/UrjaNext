@@ -26,16 +26,24 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.HdrOn
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,6 +76,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.common.util.concurrent.ListenableFuture
+import com.ravimaurya.urjanext.R
+import com.ravimaurya.urjanext.presentation.components.BigButton
 import com.ravimaurya.urjanext.presentation.navigation.NavRoutes
 import com.ravimaurya.urjanext.theme.Green40
 
@@ -80,58 +90,102 @@ import kotlin.math.min
 @Composable
 fun ScannerScreen(navController: NavController, mainNavController: NavController) {
 
-    var hasScanned by remember { mutableStateOf(false) }
+    var scannedText by remember { mutableStateOf("") }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding()
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(10.dp))
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(10.dp))
 
-            val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
+        val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
 
-            if(!cameraPermissionState.status.isGranted){
-                Button(
-                    onClick = {
-                        cameraPermissionState.launchPermissionRequest()
-                    }
-                ) {
-                    Text(text = "Camera Permission")
+        if (!cameraPermissionState.status.isGranted) {
+            Button(
+                onClick = {
+                    cameraPermissionState.launchPermissionRequest()
                 }
+            ) {
+                Text(text = "Camera Permission")
             }
+        }
 
 
-            Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-            if(cameraPermissionState.status.isGranted)
-            CameraPreview(){
-                hasScanned = it
+        if (cameraPermissionState.status.isGranted && scannedText.isEmpty()) {
+            CameraPreview() {
+                scannedText = it
             }
+        }
 
-            AnimatedVisibility(hasScanned) {
-                Button(
+
+        AnimatedVisibility(scannedText.isNotEmpty()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                QRCodeScannedText(scannedText)
+                Spacer(Modifier.height(16.dp))
+
+                // Continue Payment Button
+                BigButton(
+                    label = R.string.continue_,
                     onClick = {
-                        mainNavController.navigate(NavRoutes.TRANSACTION_SCREEN){
+                        mainNavController.navigate(NavRoutes.TRANSACTION_SCREEN) {
                         }
                     }
+                )
+                Spacer(Modifier.height(16.dp))
+
+                // Cancel Scanner
+                OutlinedButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    onClick = {
+                        scannedText = ""
+                    },
+                    shape = ShapeDefaults.Large
                 ) {
-                    Text("Continue")
+                    Text("Cancel")
                 }
             }
 
         }
 
+    }
 
+
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+fun QRCodeScannedText(text: String = "1234567890 wertyui sdghjk sghjk") {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { },
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Box(Modifier.fillMaxWidth().padding(10.dp)) {
+            Text(text)
+        }
+    }
 }
 
 
 @Composable
 fun CameraPreview(
-    hasScanned: (Boolean) -> Unit
+    hasScanned: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -142,7 +196,7 @@ fun CameraPreview(
         modifier = Modifier
             .fillMaxSize(),
         contentAlignment = Alignment.Center
-    ){
+    ) {
 
 
         AndroidView(
@@ -156,7 +210,7 @@ fun CameraPreview(
                     implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                 }
             },
-            modifier = Modifier.fillMaxSize().padding(10.dp),
+            modifier = Modifier.fillMaxSize(),
             update = { previewView ->
                 val cameraSelector: CameraSelector = CameraSelector.Builder()
                     .requireLensFacing(CameraSelector.LENS_FACING_BACK)
@@ -174,7 +228,7 @@ fun CameraPreview(
                         barcodes.forEach { barcode ->
                             barcode.rawValue?.let { barcodeValue ->
                                 barCodeVal.value = barcodeValue
-                                hasScanned(true)
+                                hasScanned(barcodeValue)
 //                            Toast.makeText(context, "$barcodeValue Success", Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -207,7 +261,6 @@ fun CameraPreview(
         AnimatedQRScannerOverlay(Modifier.size(200.dp))
 
 
-
     }
 
 }
@@ -221,7 +274,7 @@ val ScannerLightGreen = Color(0xFF69F0AE)
 fun AnimatedQRScannerOverlay(
     modifier: Modifier = Modifier,
     cornerColor: Color = ScannerGreen,
-    pulseColor: Color = ScannerLightGreen.copy(alpha = 0.5f)
+    pulseColor: Color = ScannerLightGreen.copy(alpha = 0.5f),
 ) {
     // Create multiple animations for different effects
 
@@ -357,7 +410,7 @@ fun DrawScope.cornerIndicatorLine(
     start: Offset,
     end: Offset,
     color: Color = ScannerGreen,
-    strokeWidth: Float = 3.dp.toPx()
+    strokeWidth: Float = 3.dp.toPx(),
 ) {
     drawLine(
         color = color,

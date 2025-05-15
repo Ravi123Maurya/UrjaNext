@@ -92,7 +92,7 @@ fun getList(): List<PagerContent> {
         PagerContent(
             title = R.string.page1_title,
             text = R.string.page1_text,
-            image = R.drawable.logo2
+            image = R.drawable.page1img
         ),
         PagerContent(
             title = R.string.page2_title,
@@ -102,7 +102,7 @@ fun getList(): List<PagerContent> {
         PagerContent(
             title = R.string.page3_title,
             text = R.string.page3_text,
-            image = R.drawable.logo2
+            image = R.drawable.page3img
         )
     )
 }

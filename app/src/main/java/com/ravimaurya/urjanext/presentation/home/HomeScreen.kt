@@ -156,6 +156,7 @@ fun HomeScreen(
         }
     }
 
+    // Search for Charging Locations
     UrjaSearchScreen(
         isVisible = isSearchClicked,
         onDismiss = {
@@ -229,34 +230,34 @@ fun HomeScreen(
                         location?.latitude ?: 0.0,
                         location?.longitude ?: 0.0
                     )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
 
+
+                    UrjaMap(
+                        currentPosition = LatLng(
+                            currentLoc.latitude,
+                            currentLoc.longitude
+                        ),
+                        cameraState = cameraState,
+                        urjaLocationViewModel,
+                        evSearchViewModel,
+                        isSearchClicked,
+                        searchedLocation = searchLocation,
+                        onClearStationClick = {
+                            searchLocation = null
+                            evStations = emptyList()
+                        }
+                    )
+
+                }
 
             }
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-    ) {
 
-
-        UrjaMap(
-            currentPosition = LatLng(
-                currentLoc.latitude,
-                currentLoc.longitude
-            ),
-            cameraState = cameraState,
-            urjaLocationViewModel,
-            evSearchViewModel,
-            isSearchClicked,
-            searchedLocation = searchLocation,
-            onClearStationClick = {
-                searchLocation = null
-                evStations = emptyList()
-            }
-        )
-
-    }
 
 
 }

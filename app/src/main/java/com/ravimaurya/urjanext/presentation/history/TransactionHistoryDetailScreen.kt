@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,13 +31,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ravimaurya.urjanext.presentation.components.NavBackScaffold
+import com.ravimaurya.urjanext.util.yeti
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionHistoryDetailScreen(mainNavController: NavController) {
-   NavBackScaffold(
-       navController = mainNavController
-   ) {
+    NavBackScaffold(
+        navController = mainNavController
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -175,7 +177,11 @@ fun ChargingStatusCard() {
 }
 
 @Composable
-fun ChargingMetric(value: String, label: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+fun ChargingMetric(
+    value: String,
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -306,11 +312,12 @@ fun ActionButtons() {
 
 @Composable
 fun ActionButton(text: String, icon: ImageVector) {
+    val context = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         IconButton(
-            onClick = { /* Handle action */ },
+            onClick = { yeti(context) },
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)

@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ravimaurya.urjanext.presentation.NotificationScreen
 import com.ravimaurya.urjanext.presentation.home.HomeScreen
 import com.ravimaurya.urjanext.presentation.welcome.WelcomeScreen
 import com.ravimaurya.urjanext.presentation.auth.AuthenticationScreen
@@ -32,6 +33,7 @@ object NavRoutes {
     const val HISTORY_DETAIL_SCREEN = "history-details"
     const val PROFILE_SCREEN = "profile"
     const val TRANSACTION_SCREEN = "transaction"
+    const val NOTIFICATION_SCREEN = "notification"
 
     const val HOME_NAV_GRAPH = "homeNavGraph"
 }
@@ -54,6 +56,8 @@ fun MainNavGraph() {
         composable(NavRoutes.HISTORY_DETAIL_SCREEN) { TransactionHistoryDetailScreen(mainNavController) }
         // Transaction
         composable(NavRoutes.TRANSACTION_SCREEN) { TransactionSuccessScreen(mainNavController = mainNavController) }
+        // Transaction
+        composable(NavRoutes.NOTIFICATION_SCREEN) { NotificationScreen(mainNavController = mainNavController) }
 
 
         // Home Nav Graph (Wrapper for Main Screens with Bottom Navigation Bar)

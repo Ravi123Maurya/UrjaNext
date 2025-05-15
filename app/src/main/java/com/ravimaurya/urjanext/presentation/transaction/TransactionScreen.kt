@@ -88,7 +88,8 @@ fun TransactionSuccessScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             SuccessCard()
@@ -101,6 +102,7 @@ fun TransactionSuccessScreen(
                 cardNumber = "1234 **** **** 5678",
                 onGetRouteClick = onGetRouteClick
             )
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

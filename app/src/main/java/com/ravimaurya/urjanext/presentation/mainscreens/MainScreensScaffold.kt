@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -62,7 +63,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreens(authNavController: NavHostController) {
+fun MainScreens(mainNavController: NavHostController) {
 
     val evSearchViewModel: EVSearchViewModel = hiltViewModel()
     val isSearchClicked by evSearchViewModel.isSearchClicked.collectAsStateWithLifecycle()
@@ -72,15 +73,6 @@ fun MainScreens(authNavController: NavHostController) {
     val currentRoute = navBackStackEntry?.destination?.route
     var title by remember { mutableStateOf("") }
     var isFabClicked by remember { mutableStateOf(false) }
-
-    val searchIconAnimation by animateFloatAsState(
-        label = "",
-        targetValue = if (isSearchClicked) -100f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioLowBouncy,
-            stiffness = Spring.StiffnessLow
-        )
-    )
 
     Scaffold(
         topBar = {
@@ -109,20 +101,22 @@ fun MainScreens(authNavController: NavHostController) {
 
                 },
                 actions = {
-                    if(currentRoute == NavRoutes.HOME_SCREEN){
+                    if (currentRoute == NavRoutes.HOME_SCREEN) {
                         IconButton(onClick = {
                             // Search Action
                             evSearchViewModel.searchClickedOrDismiss()
                         }) {
                             Icon(
                                 Icons.Filled.Search, "",
-                                modifier = Modifier
-                                    .rotate(searchIconAnimation)
                             )
                         }
                     }
                     // Notification
-                    AnimatedNotificationButton { yeti(context) }
+                    IconButton(
+                        onClick = { mainNavController.navigate(NavRoutes.NOTIFICATION_SCREEN) }
+                    ){
+                        Icon(Icons.Outlined.Notifications, "")
+                    }
 
                 }
             )
@@ -137,7 +131,12 @@ fun MainScreens(authNavController: NavHostController) {
             contentAlignment = Alignment.Center
         ) {
 
-            HomeScreensGraph(homeNavController, authNavController, isFabClicked, isSearchClicked){ evSearchViewModel.searchClickedOrDismiss()}
+            HomeScreensGraph(
+                homeNavController,
+                mainNavController,
+                isFabClicked,
+                isSearchClicked
+            ) { evSearchViewModel.searchClickedOrDismiss() }
         }
     }
 }
@@ -199,105 +198,6 @@ fun UrjaSearchField(
 
 }
 
-
-
-@Composable
-fun AnimatedNotificationButton(onClick: () -> Unit) {
-    // Animation states
-    var isAnimating by remember { mutableStateOf(false) }
-    val animatedScale = remember { Animatable(1f) }
-    val animatedRotation = remember { Animatable(0f) }
-    val animatedColor = remember { Animatable(Color.Gray.copy(alpha = 0f)) }
-
-    // Handle animation when the button is clicked
-    LaunchedEffect(isAnimating) {
-        if (isAnimating) {
-            // First grow and rotate
-            launch {
-                animatedScale.animateTo(
-                    targetValue = 1.3f,
-                    animationSpec = tween(150, easing = FastOutSlowInEasing)
-                )
-                animatedScale.animateTo(
-                    targetValue = 1f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                )
-            }
-
-            // Rotate back and forth
-            launch {
-                animatedRotation.animateTo(
-                    targetValue = -20f,
-                    animationSpec = tween(100)
-                )
-                animatedRotation.animateTo(
-                    targetValue = 20f,
-                    animationSpec = tween(100)
-                )
-                animatedRotation.animateTo(
-                    targetValue = -10f,
-                    animationSpec = tween(100)
-                )
-                animatedRotation.animateTo(
-                    targetValue = 10f,
-                    animationSpec = tween(100)
-                )
-                animatedRotation.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(100)
-                )
-            }
-
-            // Ripple effect
-            launch {
-                animatedColor.animateTo(
-                    targetValue = Green40.copy(alpha = 0.3f),
-                    animationSpec = tween(100)
-                )
-                animatedColor.animateTo(
-                    targetValue = Color.Gray.copy(alpha = 0f),
-                    animationSpec = tween(300)
-                )
-            }
-
-            isAnimating = false
-        }
-    }
-
-    Box(
-        contentAlignment = Alignment.Center
-    ) {
-        // Background ripple effect
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .scale(animatedScale.value + 0.2f)
-                .background(animatedColor.value, CircleShape)
-        )
-
-        // The notification icon button
-        IconButton(
-            onClick = {
-                isAnimating = true
-                onClick()
-            },
-            modifier = Modifier
-                .scale(animatedScale.value)
-                .graphicsLayer {
-                    rotationZ = animatedRotation.value
-                }
-        ) {
-            Icon(
-                imageVector = Icons.Filled.NotificationsNone,
-                contentDescription = "Notifications",
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
 
 
 
