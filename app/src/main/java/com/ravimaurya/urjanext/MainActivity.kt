@@ -40,7 +40,3 @@ class MainActivity : ComponentActivity() {
 
 
 
-// urjanext@gmail.com
-// urjanext123@
-//https://creatie.ai/goto/DzL2Jjnd?page_id=0:0&layer_id=25:3225&file=139207260573249
-//https://www.figma.com/design/bsdgLbmycjH9ibWPfLoG1y/sem-5-project?node-id=0-1&t=zhPJQuSmxtcWXwa4-1
